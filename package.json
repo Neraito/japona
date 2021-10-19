@@ -1,0 +1,26 @@
+{
+  "name": "selfie",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "go": "node ./index.js",
+    "upd": "node ./deploy-commands.js",
+    "twins": "node ./bot.js"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.23.1",
+    "discord.js": "^13.2.0",
+    "discord.js-selfbot": "^12.0.2",
+    "dotenv": "^10.0.0",
+    "node-fetch": "^3.0.0",
+    "util": "^0.12.4"
+  }
+}
