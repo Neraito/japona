@@ -7,7 +7,23 @@ const {
 } = require('discord.js');
 const sleep = require('util').promisify(setTimeout);
 
-const Profile = require('../schemas/Profile.js');
+const GuildSettings = require('../../../schemas/GuildSettings.js');
+const Profile = require('../../../schemas/Profile.js');
+
+const checkBotAdmin = async (interaction, functionCallback) => {
+  let guildSettings = await GuildSettings.findOne({
+    guildId: interaction.guildId
+  })
+  console.log(guildSettings)
+  if (guildSettings?.botAdminRoleId != 'none' && !interaction.member.roles.resolve(guildSettings?.botAdminRoleId)) {
+    return interaction.reply({
+      content: "У тебя не достаточно прав.",
+      ephemeral: true
+    })
+  } else {
+    functionCallback(interaction)
+  }
+}
 
 
 // === /// === /// ===
@@ -110,9 +126,9 @@ const balanceSubcommand = async (interaction) => {
   if (!interaction.options.getString('add') && !interaction.options.getString('remove')) {
     balanceShow(interaction)
   } else if (interaction.options.getString('add') && !interaction.options.getString('remove')) {
-    balanceAdd(interaction)
+    await checkBotAdmin(interaction, balanceAdd);
   } else if (!interaction.options.getString('add') && interaction.options.getString('remove')) {
-    balanceRemove(interaction)
+    await checkBotAdmin(interaction, balanceRemove);
   }
 };
 
@@ -132,10 +148,10 @@ module.exports.cmd = {
   .addSubcommand(subcommand =>
     subcommand
     .setName('balance')
-    .setDescription('Управление балансом.')
-    .addStringOption(option => option.setName('add').setDescription('Укажите сколько добавить пользователю денег.'))
-    .addStringOption(option => option.setName('remove').setDescription('Укажите сколько забрать у пользователя денег.'))
-    .addUserOption(option => option.setName('target').setDescription('Используется если нужно изменить баланс другого пользователя.'))
+    .setDescription('Управление балансом пользователя.')
+    .addStringOption(option => option.setName('add').setDescription('Сколько добавить на баланс.\n🛡 Нужна роль с доступом!'))
+    .addStringOption(option => option.setName('remove').setDescription('Сколько удалить с баланса.\n️🛡 Нужна роль с доступом!'))
+    .addUserOption(option => option.setName('target').setDescription('На кого использовать команду.'))
   ),
 
   async execute(interaction) {

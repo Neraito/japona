@@ -3,7 +3,9 @@ const { Client, Collection, Intents } = require('discord.js');
 require('dotenv').config();
 global.mongoose = require('mongoose');
 
-global.client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+//const allIntents = Intents.FLAGS.GUILDS;
+//global.client = new Client({ intents: allIntents }) 
+global.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES] });
 
 // ------
 
@@ -44,6 +46,8 @@ mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
 })
 .then(() => console.log("Успешное подключение к Mongo"))
+
+// ------
 
 
 client.login(process.env.TOKEN);
