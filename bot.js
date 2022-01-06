@@ -86,8 +86,8 @@ for (let ti = 0; ti < tokens.length; ti++) {
       `s${prefixChars[ti]}.`,
       500 * (i + 1)
     );
-  };
-};
+  }
+}
 
 /*bot(
   new Discord.Client(),

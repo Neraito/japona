@@ -1,11 +1,10 @@
-const {
-  SlashCommandBuilder
-} = require('@discordjs/builders');
-const {
-  MessageActionRow,
-  MessageButton
-} = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 
+module.exports.help = {
+  name: "/ping",
+  description: "_Пингующая тыкалка с кнопками._"
+};
 
 module.exports.cmd = {
   data: new SlashCommandBuilder()
@@ -29,8 +28,42 @@ module.exports.cmd = {
       .setLabel('Stop')
       .setStyle('DANGER'),
     );
+    
+    const row2 = new MessageActionRow()
+    .addComponents(
+      new MessageSelectMenu()
+        .setCustomId('testSelectMenu')
+        .setPlaceholder('Где ты здесь пинг увидел?')
+        .addOptions([
+          {
+            label: 'Пинг?',
+            description: 'В общем...',
+            value: 'PingMenuOption1'
+          },
+          {
+            label: 'Понг?',
+            description: 'Если хочешь реальный пинг...',
+            value: 'PingMenuOption2'
+          },
+          {
+            label: 'или Пинг?',
+            description: 'Тебе просто нужно поставить...',
+            value: 'PingMenuOption3'
+          },
+          {
+            label: 'или Понг?',
+            description: 'Символ @ перед ником...',
+            value: 'PingMenuOption4'
+          },
+          {
+            label: 'может всетаки Пинг?',
+            description: 'И тогда тебя человек возненавидит.',
+            value: 'PingMenuOption5'
+          },
+        ])
+    );
     await interaction.reply({
-      content: 'Pong!', components: [row]
+      content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2]
     });
   },
 };
@@ -48,7 +81,7 @@ module.exports.btn = [{
 
     if (interaction.user.id != interaction.message.interaction.user.id) return interaction.reply({
       content: "Не смей тыкать на чужие кнопки!", ephemeral: true
-    })
+    });
 
     const row = new MessageActionRow()
     .addComponents(
@@ -66,7 +99,7 @@ module.exports.btn = [{
       .setStyle('DANGER'),
     );
     await interaction.update({
-      content: 'Pong again!', components: [row]
+      content: 'Pong again! ' + bot.ws.ping + "ms", components: [row]
     });
   },
 },
@@ -75,7 +108,7 @@ module.exports.btn = [{
     async execute(interaction) {
       if (interaction.user.id != interaction.message.interaction.user.id) return interaction.reply({
         content: "Не смей тыкать на чужие кнопки!", ephemeral: true
-      })
+      });
 
       const row = new MessageActionRow()
       .addComponents(
@@ -93,7 +126,7 @@ module.exports.btn = [{
         .setStyle('DANGER'),
       );
       await interaction.update({
-        content: 'Pong aga... Wait what? Ping!', components: [row]
+        content: 'Pong aga... Wait what? Ping! ' + bot.ws.ping + "ms", components: [row]
       });
     }
   },
@@ -102,7 +135,7 @@ module.exports.btn = [{
     async execute(interaction) {
       if (interaction.user.id != interaction.message.interaction.user.id) return interaction.reply({
         content: "Не смей тыкать на чужие кнопки!", ephemeral: true
-      })
+      });
 
       const row = new MessageActionRow()
       .addComponents(
@@ -123,8 +156,8 @@ module.exports.btn = [{
         .setDisabled(true),
       );
       await interaction.update({
-        content: 'Stoooop! Don\'t ping me!!!', components: [row]
+        content: 'Stoooop! Don\'t ping me!!! ' + bot.ws.ping + "ms", components: [row]
       });
     }
   },
-]
+];
