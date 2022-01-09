@@ -4,55 +4,46 @@ const { MessageActionRow, MessageButton } = require('discord.js');
 const Profile = require(`${__main}/schemas/Profile.js`);
 const GuildSettings = require(`${__main}/schemas/GuildSettings.js`);
 
+
+const commandName = 'balance';
+
 module.exports.help = {
-  name: "balance",
-  description: "_Крч тута можна посмотретб сколька у тибя денях и тута еще можна добавить и убавить денях, вооот._"
-  + `\n${icons.options} **Доступные опции команды:**`
-  + "\n・**\`target\`** _(Можно указать пользователя, без этой опции команда применяется на вызвавшего команду)_"
-  + "\n・**\`add\`** _(Используется для увеличения баланса пользователя, доступно только админам)_"
-  + "\n・**\`remove\`** _(Используется для уменьшения баланса пользователя, доступно только админам)_"
+  name: commandName,
+  description: `_Крч тута можна посмотретб сколька у тибя денях и тута еще можна добавить и убавить денях, вооот._
+${icons.options1} **Доступные опции команды:**
+・**\`target\`** _(Можно указать пользователя, без этой опции команда применяется на вызвавшего команду)_
+・**\`add\`** _(Используется для увеличения баланса пользователя, доступно только админам)_
+・**\`remove\`** _(Используется для уменьшения баланса пользователя, доступно только админам)_`
 };
 
-module.exports.init = (slashCommand, commandDataArray) => {
+
+module.exports.init = (slashCommand, commandsExecData) => {
   slashCommand.addSubcommand(subcommand =>
     subcommand
-    .setName('balance')
+    .setName(commandName)
     .setDescription('Управление балансом пользователя.')
     .addStringOption(option => option.setName('add').setDescription('Сколько добавить на баланс.\n🛡 Нужна роль с доступом!'))
     .addStringOption(option => option.setName('remove').setDescription('Сколько удалить с баланса.\n️🛡 Нужна роль с доступом!'))
     .addUserOption(option => option.setName('target').setDescription('На кого использовать команду.'))
   );
-  commandDataArray.push({
-    name: "balance",
-    command: editBalance_Subcommand
+  commandsExecData.push({
+    name: commandName,
+    execute: commandExecution
   });
 };
 
 
 // === /// === /// === // === === === //
 
-
-const showBalance_Subcommand = async (interaction) => {
-  let user = await Profile.findOne({userId: interaction.user.id});
-  if (!user) user = await Profile.create({userId: interaction.user.id});
-  
-  await interaction.reply(
-    `>>> <@${user.userId}>`
-    +`\nБаланс: ${new Intl.NumberFormat().format(user.balance*1)}`
-  );
-};
-
-// --- --- --- // --- --- --- // --- --- --- //
-
-const editBalance_Subcommand = async (interaction) => {
+async function commandExecution(interaction) {
   let add = interaction.options.getString('add');
   let remove = interaction.options.getString('remove');
   
-  if (!add && !remove) showBalance(interaction);
-  else if (add && !remove) await checkBotAdmin(interaction, addBalance);
-  else if (!add && remove) await checkBotAdmin(interaction, removeBalanceemove);
-  else if (add && remove) interaction.reply({content: 'Выбери что-то одно, добавить или убавить.', ephemeral: true})
-};
+  if (!add && !remove) awaitshowBalance(interaction);
+  if (add && !remove) await checkBotAdmin(interaction, addBalance);
+  if (!add && remove) await checkBotAdmin(interaction, removeBalance);
+  if (add && remove) interaction.reply({content: 'Выбери что-то одно, добавить или убавить.', ephemeral: true});
+}
 
 
 const showBalance = async (interaction) => {

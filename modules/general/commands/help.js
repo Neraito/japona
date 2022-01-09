@@ -8,12 +8,15 @@ module.exports.help = {
   description: "_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._"
 };
 
-let pageSize = 2;
+
+const pageSize = 2;
+
 
 module.exports.cmd = {
+  
   data: new SlashCommandBuilder()
   .setName('help')
-  .setDescription('_Список команд с описанием._'),
+  .setDescription('Список команд с описанием.'),
 
   async execute(interaction) {
     let category = 0;
@@ -22,6 +25,7 @@ module.exports.cmd = {
     let helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
     await interaction.reply(helpMessage);
   },
+  
 };
 
 
@@ -144,9 +148,7 @@ module.exports.btn = [
       let collector = interaction.channel.createMessageCollector({filter, time: 20000});
       
       collector.on('collect', (message) => {
-        message.delete()
-          .then(msg => {})
-          .catch(e => {});
+        message.delete().catch(e => {});
         
         let page = parseInt(message.content);
         if (isNaN(page)) page = 1;
@@ -163,6 +165,7 @@ module.exports.btn = [
 
 
 function getHelp(interaction, category, page, pageSize, buttonsState) {
+  
   let commands = helpData.commands[category];
   let categories = helpData.categories[category];
   
@@ -170,24 +173,28 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
   if (page > lastPage) page = lastPage;
   if (page < 1) page = 1;
   
+  
   let helpEmbed = new MessageEmbed()
     .setColor('#ff99ff')
     .setTitle(`**${categories.name}** `);
   
-  let helpEmbedDescription = `**${categories.description}**\n\n`;
+  let helpDesc = `**${categories.description}**\n\n`;
   
-  if (page <= 1) startPage = 0; else startPage = page - 1;
   
-  for (let i = (pageSize * startPage); i < (pageSize * (page - 1) + pageSize); i++) {
-    if (i < commands.length) helpEmbedDescription = helpEmbedDescription
+  if (page <= 1) startPage = 0;
+  else startPage = page - 1;
+  
+  for (let i = pageSize * startPage; i < (pageSize * (page - 1) + pageSize); i++) {
+    if (i < commands.length) {
+      helpDesc = helpDesc
       + `${icons.slash1} ${categories.path} **${commands[i].name}**\n`
       + `${commands[i].description}\n\n`;
+    }
   }
   
-  helpEmbed.setDescription(
-      helpEmbedDescription.slice(0, helpEmbedDescription.length - 1)
-      + '_ _'
-    )
+  
+  helpEmbed
+    .setDescription(helpDesc.slice(0, helpDesc.length - 1) + '_ _')
     .setFooter(`📖 Страница: ${page}/${lastPage}\n🆔️ ${category}`);
   
   
@@ -220,6 +227,7 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
       .setDisabled(buttonsState[4]),
   );
   
+  
   let categoryOptions = [];
   for (let i = 0; i < helpData.categories.length; i++) {
     categoryOptions.push({
@@ -238,8 +246,10 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
       .setDisabled(buttonsState[5]),
   );
   
+  
   return {
     embeds: [helpEmbed],
     components: [row, row2]
   };
+  
 }

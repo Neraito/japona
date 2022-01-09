@@ -5,8 +5,9 @@ module.exports = {
   once: true,
   async execute(bot) {
     console.log(`Готово! Бот залогинен под аккаунтом ${bot.user.tag}`);
+    //require(`${__main}/modules/index.js`)()
     
-    botModulesInit();
+    //initBotModules();
     global.helpData = createHelpData();
     
     const { botId, guildId } = require(`${__main}/config.json`);
@@ -15,61 +16,76 @@ module.exports = {
 };
 
 
-function botModulesInit() {
-  let botModules = fs.readdirSync('./bot modules/');
+
+function initBotModules() {
+  
+  let botModules = fs.readdirSync('./botModules/');
   
   for (let module of botModules) {
-    let initModule = fs.readdirSync(`./bot modules/${module}/`)
+    let initModule = fs.readdirSync(`./botModules/${module}/`)
       .filter(file => file.startsWith('init.'));
     
-    initModule = require(`${__main}/bot modules/${module}/${initModule}`);
+    initModule = require(`${__main}/botModules/${module}/${initModule}`);
     initModule();
   }
+  
 }
 
+
 function createHelpData() {
-  let helpAboutModules = [];
-  let helpAboutModuleCommands = [];
   
-  let botModules = fs.readdirSync('./bot modules/');
-  //console.log(botModules)
+  let modulesHelpData = [];
+  let modulesCommandsHelpData = [];
   
-  for (let module of botModules) {
-    let helpAboutModule = fs.readdirSync(`./bot modules/${module}/`).filter(file => file.startsWith('help.'));
+  let modulesDir = `${__main}/modules`;
+  
+  let modules = fs.readdirSync(`${modulesDir}/`)
+    .filter(f => (!f.endsWith('.js')));
+  
+  for (let module of modules) {
     
-    helpAboutModule = require(`${__main}/bot modules/${module}/${helpAboutModule}`);
-    helpAboutModules.push(helpAboutModule);
-    //console.log(helpAboutModule)
+    let helpFile = fs.readdirSync(`${modulesDir}/${module}/`)
+      .filter(f => f.startsWith('help.'));
+    let helpData = require(`${modulesDir}/${module}/${helpFile}`);
+    modulesHelpData.push(helpData);
     
-    let moduleCommands = fs.readdirSync(`./bot modules/${module}/commands/`).filter(file => file.endsWith('.js'));
     
-    let helpAboutModuleCommandsTemp = [];
+    let helpDataTemp = [];
+    let moduleCommands = fs.readdirSync(`${modulesDir}/${module}/commands/`)
+      .filter(f => f.endsWith('.js'));
+    
     for (let command of moduleCommands) {
-      command = require(`${__main}/bot modules/${module}/commands/${command}`);
-      helpAboutModuleCommandsTemp.push(command.help);
+      command = require(`${modulesDir}/${module}/commands/${command}`);
+      helpDataTemp.push(command.help);
     }
-    helpAboutModuleCommands.push(helpAboutModuleCommandsTemp);
+    modulesCommandsHelpData.push(helpDataTemp);
+    
   }
-  //console.log(helpAboutModules)
-  //console.log(helpAboutModuleCommands)
   
   
-  helpAboutModules.push({
+  /*modulesHelpData.push({
     name: '—  О С Т А Л Ь Н О Е  —',
     description: 'Здесь представлены команды и информация о них, которые не попали ни в одну категорию',
     path: ''
   });
-  let commands = fs.readdirSync(`./commands/`).filter(file => file.endsWith('.js'));
-  let commandsTemp = [];
-  for (let command of commands) {
+  
+  
+  let generalCommands = fs.readdirSync(`./commands/`).filter(file => file.endsWith('.js'));
+  let generalCommandsTemp = [];
+  
+  
+  for (let command of generalCommands) {
     command = require(`${__main}/commands/${command}`);
-    commandsTemp.push(command.help);
+    generalCommandsTemp.push(command.help);
   }
-  helpAboutModuleCommands.push(commandsTemp);
+  
+  
+  modulesCommandsHelpData.push(generalCommandsTemp);*/
   
   
   return {
-    categories: helpAboutModules,
-    commands: helpAboutModuleCommands
+    categories: modulesHelpData,
+    commands: modulesCommandsHelpData
   };
+  
 }

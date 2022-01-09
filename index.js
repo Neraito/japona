@@ -14,37 +14,20 @@ global.icons = {
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 require('dotenv').config();
-global.mongoose = require('mongoose');
 
+
+global.mongoose = require('mongoose');
 global.bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS] });
 
-
-// ------
-
-const uncategorizedCommands = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
 bot.commands = new Collection();
-for (let command of uncategorizedCommands) {
-  command = require(`./commands/${command}`);
-  bot.commands.set(command.cmd.data.name, command.cmd);
-}
-
 bot.buttons = new Collection();
-for (let command of uncategorizedCommands) {
-  command = require(`./commands/${command}`);
-  if (command.btn) {
-    for (let button of command.btn) {
-      bot.buttons.set(button.name, button);
-    }
-  }
-}
 
-// ------
 
 const events = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
-for (const file of events) {
-  const event = require(`./events/${file}`);
+for (let event of events) {
+  event = require(`./events/${event}`);
+  
   if (event.once) {
     bot.once(event.name, (...args) => event.execute(...args));
   } else {
@@ -52,14 +35,16 @@ for (const file of events) {
   }
 }
 
-// ------
+
+const modulesInit = require(`${__main}/modules/index.js`);
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
 })
-.then(() => console.log("Успешное подключение к Mongo"))
-
-// ------
+.then(() => {
+  console.log("Успешное подключение к Mongo");
+  modulesInit();
+});
 
 
 bot.login(process.env.TOKEN);
