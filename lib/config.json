@@ -1,0 +1,11 @@
+{
+	"botId": "735390691110289468",
+	"intents": [
+	  "GUILDS",
+	  "GUILD_MEMBERS",
+	  "GUILD_PRESENCES",
+	  "GUILD_MESSAGES",
+	  "GUILD_EMOJIS_AND_STICKERS"
+	],
+	"guildId": "831878963839107112"
+}

@@ -1,12 +1,15 @@
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
-    if (interaction.isCommand())
+    
+    if (interaction.isCommand()) {
       runCommand(interaction);
-    else if (interaction.isButton() || interaction.isSelectMenu()) 
+    }
+    else if (interaction.isButton() || interaction.isSelectMenu()) {
       runButton(interaction);
-    else
-      return;
+    }
+    else return;
+    
   },
 };
 
@@ -25,6 +28,7 @@ async function runCommand(interaction) {
     });
   }
 }
+
 
 async function runButton(interaction) {
   const button = bot.buttons.get(interaction.customId);

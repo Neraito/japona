@@ -10,35 +10,32 @@ global.icons = {
   right2: '<:page_right2:928276869235761252>',
 };
 
+require('dotenv').config();
 
 const fs = require('fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const { botId, guildId } = require('./config.json');
-require('dotenv').config();
-
-
 const { Client, Collection, Intents } = require('discord.js');
-global.bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS] });
+const config = require(`${__main}/lib/config.json`);
+
+global.mongoose = require('mongoose');
+global.bot = new Client({ intents: new Intents(config.intents) });
+
 bot.commands = new Collection();
 bot.buttons = new Collection();
 
 
-global.mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
 })
 .then(() => {
-  
   console.log("Успешное подключение к Mongo");
-  
-  deploy();
-
+  slashCommandsDeploy();
 });
 
 
 
-async function deploy() {
+async function slashCommandsDeploy() {
   
   const modulesInit = require(`${__main}/modules/index.js`);
   let botCommands = await modulesInit();
@@ -46,7 +43,7 @@ async function deploy() {
   
   const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
   rest.put(
-    Routes.applicationGuildCommands(botId, guildId),
+    Routes.applicationGuildCommands(config.botId, config.guildId),
     { body: botCommands }
   )
   .then(() => console.log('Успешно зарегистрированы команды приложения.'))

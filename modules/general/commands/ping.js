@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
+const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
 module.exports.help = {
   name: "/ping",
@@ -62,6 +63,10 @@ module.exports.cmd = {
           },
         ])
     );
+    
+    //console.log(interaction)
+    //console.log(await permissionsController.check(6, interaction));
+    
     await interaction.reply({
       content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2]
     });
@@ -69,40 +74,41 @@ module.exports.cmd = {
 };
 
 
-module.exports.btn = [{
-  name: "PingButton",
-  async execute(interaction) {
-    /*console.log('///// ••••••••• /////\nInteraction:')
-      console.log(interaction)
-      console.log('///// ====== /////\nSlash User:')
-      console.log(interaction.message.interaction.user)
-      console.log('--- --- ---\nButton User:')
-      console.log(interaction.user)*/
-
-    if (interaction.user.id != interaction.message.interaction.user.id) return interaction.reply({
-      content: "Не смей тыкать на чужие кнопки!", ephemeral: true
-    });
-
-    const row = new MessageActionRow()
-    .addComponents(
-      new MessageButton()
-      .setCustomId('PingButton')
-      .setLabel('Ping')
-      .setStyle('PRIMARY'),
-      new MessageButton()
-      .setCustomId('PingPongButton')
-      .setLabel('Pong')
-      .setStyle('PRIMARY'),
-      new MessageButton()
-      .setCustomId('PingStopButton')
-      .setLabel('Stop')
-      .setStyle('DANGER'),
-    );
-    await interaction.update({
-      content: 'Pong again! ' + bot.ws.ping + "ms", components: [row]
-    });
+module.exports.btn = [
+  {
+    name: "PingButton",
+    async execute(interaction) {
+      /*console.log('///// ••••••••• /////\nInteraction:')
+        console.log(interaction)
+        console.log('///// ====== /////\nSlash User:')
+        console.log(interaction.message.interaction.user)
+        console.log('--- --- ---\nButton User:')
+        console.log(interaction.user)*/
+  
+      if (interaction.user.id != interaction.message.interaction.user.id) return interaction.reply({
+        content: "Не смей тыкать на чужие кнопки!", ephemeral: true
+      });
+  
+      const row = new MessageActionRow()
+      .addComponents(
+        new MessageButton()
+        .setCustomId('PingButton')
+        .setLabel('Ping')
+        .setStyle('PRIMARY'),
+        new MessageButton()
+        .setCustomId('PingPongButton')
+        .setLabel('Pong')
+        .setStyle('PRIMARY'),
+        new MessageButton()
+        .setCustomId('PingStopButton')
+        .setLabel('Stop')
+        .setStyle('DANGER'),
+      );
+      await interaction.update({
+        content: 'Pong again! ' + bot.ws.ping + "ms", components: [row]
+      });
+    },
   },
-},
   {
     name: "PingPongButton",
     async execute(interaction) {

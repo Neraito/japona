@@ -1,12 +1,11 @@
 {
-  "name": "selfie",
-  "version": "1.0.0",
+  "name": "batono",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "go": "node ./index.js",
-    "upd": "node ./deploy-commands.js",
-    "twins": "node ./bot.js"
+    "upd": "node ./deploy-commands.js"
   },
   "engines": {
     "node": "16.x"
@@ -17,8 +16,7 @@
     "@discordjs/builders": "^0.6.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "discord-api-types": "^0.23.1",
-    "discord.js": "^13.5.0",
-    "discord.js-selfbot": "^12.0.2",
+    "discord.js": "^13.5.1",
     "dotenv": "^10.0.0",
     "mongoose": "^6.0.11",
     "node-fetch": "^3.0.0",

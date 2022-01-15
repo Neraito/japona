@@ -1,6 +1,8 @@
 const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
+//const Guilds = require(`${__main}/schemas/Guilds.js`);
+
 
 
 module.exports = async () => {
@@ -36,6 +38,8 @@ module.exports = async () => {
 
 
 async function initModuleWithoutSubcommands(module, modulesCommandsData) {
+  
+  
   
   const commands = fs.readdirSync(`${__dirname}/${module}/commands/`)
     .filter(file => file.endsWith('.js'));
