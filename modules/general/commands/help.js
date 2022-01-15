@@ -32,6 +32,8 @@ module.exports.cmd = {
     
   },
   
+  
+  
 };
 
 module.exports.btn = [
@@ -176,6 +178,7 @@ module.exports.btn = [
       let filter = (m) => { return m.author.id === interaction.user.id };
       let collector = interaction.channel.createMessageCollector({filter, time: 20000});
       
+      
       collector.on('collect', (message) => {
         
         message.delete().catch(e => {});
@@ -193,6 +196,8 @@ module.exports.btn = [
       
     }
   },
+  
+  
   
 ];
 
@@ -220,8 +225,8 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
       ].join('\n');
     }
     
-    
   }
+  
   
   let helpEmbed = new MessageEmbed()
     .setColor('#ff99ff')
@@ -269,7 +274,6 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
       value: `hc${i}`
     });
     
-    
   }
   
   const row2 = new MessageActionRow()
@@ -281,12 +285,10 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
       .setDisabled(buttonsState[5]),
   );
   
-  
   return {
     embeds: [helpEmbed],
     components: [row, row2]
   };
-  
   
   
   

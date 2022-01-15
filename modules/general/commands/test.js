@@ -14,6 +14,7 @@ module.exports.cmd = {
 
   async execute(interaction) {
     
+    console.log(interaction)
     /*const Guilds = require(`${__main}/schemas/Guilds.js`);
     
     let result = await Guilds.findOne({ guildId: interaction.member.guild.id })
