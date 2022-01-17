@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "go": "node ./index.js",
-    "upd": "node ./deploy-commands.js"
+    "go": "node ./src/index.js",
+    "upd": "node ./src/deploy-commands.js"
   },
   "engines": {
     "node": "16.x"

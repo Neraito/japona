@@ -39,8 +39,6 @@ module.exports = async () => {
 
 async function initModuleWithoutSubcommands(module, modulesCommandsData) {
   
-  
-  
   const commands = fs.readdirSync(`${__dirname}/${module}/commands/`)
     .filter(file => file.endsWith('.js'));
   

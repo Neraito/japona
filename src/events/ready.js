@@ -4,14 +4,11 @@ module.exports = {
   name: 'ready',
   once: true,
   async execute(bot) {
-    console.log(`Готово! Бот залогинен под аккаунтом ${bot.user.tag}`);
-    //require(`${__main}/modules/index.js`)()
     
-    //initBotModules();
+    console.log(`Готово! Бот залогинен под аккаунтом ${bot.user.tag}`);
+    
     global.helpData = createHelpData();
     
-    const { botId, guildId } = require(`${__main}/lib/config.json`);
-    //console.log(await bot.guilds.cache.get(guildId)?.commands.fetch('902844894110945321'));
   },
 };
 

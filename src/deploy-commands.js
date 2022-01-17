@@ -11,16 +11,14 @@ global.icons = {
 };
 
 require('dotenv').config();
-
 const fs = require('fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { Client, Collection, Intents } = require('discord.js');
-const config = require(`${__main}/lib/config.json`);
+const config = require(`${__main}/config/config.json`);
 
 global.mongoose = require('mongoose');
 global.bot = new Client({ intents: new Intents(config.intents) });
-
 bot.commands = new Collection();
 bot.buttons = new Collection();
 

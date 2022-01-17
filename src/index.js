@@ -11,20 +11,16 @@ global.icons = {
 };
 
 
-
 (async () => {
   
   require('dotenv').config();
-
   const fs = require('fs');
-  const config = require(`${__main}/lib/config.json`);
+  const config = require(`${__main}/config/config.json`);
   const { Client, Collection, Intents } = require('discord.js');
   const modulesInit = require(`${__main}/modules/index.js`);
   global.mongoose = require('mongoose');
   
   global.bot = new Client({ intents: new Intents(config.intents) });
-
-
   bot.commands = new Collection();
   bot.buttons = new Collection();
   
@@ -40,12 +36,12 @@ global.icons = {
   modulesInit();
   
   
-  const events = fs.readdirSync('./events')
+  const events = fs.readdirSync(`${__main}/events`)
     .filter(file => file.endsWith('.js'));
   
   for (let event of events) {
     
-    event = require(`./events/${event}`);
+    event = require(`${__main}/events/${event}`);
     if (event.once) bot.once(event.name, (...args) => event.execute(...args));
     else bot.on(event.name, (...args) => event.execute(...args));
     
