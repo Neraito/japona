@@ -2,6 +2,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
 const checkPerms = require(`${__main}/controllers/permissionsController.js`).check;
 
+const icons = require(`${__main}/utils/constants.js`).icons;
+
 const Profile = require(`${__main}/schemas/Profile.js`);
 const Guilds = require(`${__main}/schemas/Guilds.js`);
 

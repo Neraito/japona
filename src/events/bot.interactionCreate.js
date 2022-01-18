@@ -1,4 +1,5 @@
 module.exports = {
+  
   name: 'interactionCreate',
   async execute(interaction) {
     
@@ -11,6 +12,7 @@ module.exports = {
     else return;
     
   },
+  
 };
 
 

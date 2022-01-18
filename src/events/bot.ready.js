@@ -1,6 +1,8 @@
 const fs = require('fs');
 
+
 module.exports = {
+  
   name: 'ready',
   once: true,
   async execute(bot) {
@@ -10,7 +12,9 @@ module.exports = {
     global.helpData = createHelpData();
     
   },
+  
 };
+
 
 
 function createHelpData() {
@@ -23,11 +27,11 @@ function createHelpData() {
   let modules = fs.readdirSync(`${modulesDir}/`)
     .filter(f => (!f.endsWith('.js')));
   
-  
   for (let module of modules) {
     
     let helpFile = fs.readdirSync(`${modulesDir}/${module}/`)
       .filter(f => f.startsWith('help.'));
+    
     let helpData = require(`${modulesDir}/${module}/${helpFile}`);
     modulesHelpData.push(helpData);
     
@@ -35,7 +39,6 @@ function createHelpData() {
     let helpDataTemp = [];
     let moduleCommands = fs.readdirSync(`${modulesDir}/${module}/commands/`)
       .filter(f => f.endsWith('.js'));
-    
     
     for (let command of moduleCommands) {
       command = require(`${modulesDir}/${module}/commands/${command}`);
@@ -47,12 +50,11 @@ function createHelpData() {
     
   }
   
+  
   return {
     categories: modulesHelpData,
     commands: modulesCommandsHelpData
   };
-  
-  
   
   
 }

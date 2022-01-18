@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+
+
 const economySchema = new mongoose.Schema({
   guildId: {
     type: String,
@@ -8,5 +11,6 @@ const economySchema = new mongoose.Schema({
     default: "0"
   }
 });
+
 
 module.exports = mongoose.model('economies', economySchema);

@@ -2,12 +2,13 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 
+const icons = require(`${__main}/utils/constants.js`).icons;
+
 
 module.exports.help = {
   
   name: "/help",
   description: "_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._"
-  
   
 };
 
@@ -33,8 +34,9 @@ module.exports.cmd = {
   },
   
   
-  
 };
+
+
 
 module.exports.btn = [
   

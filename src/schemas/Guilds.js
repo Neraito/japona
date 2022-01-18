@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+
+
 const guildsSchema = new mongoose.Schema({
   guildId: {
     type: String,
@@ -22,5 +25,6 @@ const guildsSchema = new mongoose.Schema({
     }
   }
 });
+
 
 module.exports = mongoose.model('guilds', guildsSchema);

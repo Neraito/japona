@@ -1,7 +1,8 @@
 const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-//const Guilds = require(`${__main}/schemas/Guilds.js`);
+const config = require(`${__main}/config/config.json`);
+const Guilds = require(`${__main}/schemas/Guilds.js`);
 
 
 
@@ -22,6 +23,11 @@ module.exports = async () => {
     const moduleHelpData = require(`${__dirname}/${module}/${moduleHelp}`);
     //console.log(moduleHelpData.id)
     
+    const mongoGuild = await Guilds.find({ guildId: config.guildId });
+    console.log(mongoGuild)
+    
+    
+    
     if (moduleHelpData.id === null)
       await initModuleWithoutSubcommands(module, modulesCommandsData);
     
@@ -33,6 +39,8 @@ module.exports = async () => {
   console.log(modulesCommandsData)
   
   return modulesCommandsData;
+  
+  
 };
 
 
@@ -44,6 +52,9 @@ async function initModuleWithoutSubcommands(module, modulesCommandsData) {
   
   
   for (let command of commands) {
+    
+    //const mongoGuild = await Guilds.find({ guildId: config.guildId });
+    //console.log(mongoGuild)
     
     command = require(`${__dirname}/${module}/commands/${command}`);
     bot.commands.set(command.cmd.data.name, command.cmd);

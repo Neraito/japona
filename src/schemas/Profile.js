@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+
+
 const profileSchema = new mongoose.Schema({
   userId: {
     type: String,
@@ -8,5 +11,6 @@ const profileSchema = new mongoose.Schema({
     default: "0"
   }
 });
+
 
 module.exports = mongoose.model('profiles', profileSchema);
