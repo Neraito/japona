@@ -5,32 +5,24 @@ const config = require(`${__main}/config/config.json`);
 const Guilds = require(`${__main}/schemas/Guilds.js`);
 
 
-
 module.exports = async () => {
   
   const modulesCommandsData = [];
   
-  const modules = fs.readdirSync(`${__dirname}/`)
-    .filter(f => (!f.endsWith('.js')));
+  
+  const modules = fs.readdirSync(`${__dirname}/`).filter(f => (!f.endsWith('.js')));
   //console.log(modules)
-  
-  
   for (let module of modules) {
     
-    const moduleHelp = fs.readdirSync(`${__dirname}/${module}`)
-      .filter(f => f.startsWith('help.'));
-    
+    const moduleHelp = fs.readdirSync(`${__dirname}/${module}`).filter(f => f.startsWith('help.'));
     const moduleHelpData = require(`${__dirname}/${module}/${moduleHelp}`);
     //console.log(moduleHelpData.id)
     
     const mongoGuild = await Guilds.find({ guildId: config.guildId });
     console.log(mongoGuild)
     
-    
-    
     if (moduleHelpData.id === null)
       await initModuleWithoutSubcommands(module, modulesCommandsData);
-    
     if (moduleHelpData.id !== null)
       await initModuleWithSubcommands(module, moduleHelpData, modulesCommandsData);
     
@@ -40,21 +32,14 @@ module.exports = async () => {
   
   return modulesCommandsData;
   
-  
 };
-
 
 
 async function initModuleWithoutSubcommands(module, modulesCommandsData) {
   
-  const commands = fs.readdirSync(`${__dirname}/${module}/commands/`)
-    .filter(file => file.endsWith('.js'));
-  
+  const commands = fs.readdirSync(`${__dirname}/${module}/commands/`).filter(file => file.endsWith('.js'));
   
   for (let command of commands) {
-    
-    //const mongoGuild = await Guilds.find({ guildId: config.guildId });
-    //console.log(mongoGuild)
     
     command = require(`${__dirname}/${module}/commands/${command}`);
     bot.commands.set(command.cmd.data.name, command.cmd);
@@ -67,9 +52,7 @@ async function initModuleWithoutSubcommands(module, modulesCommandsData) {
     
   }
   
-  
 }
-
 
 
 async function initModuleWithSubcommands(module, moduleHelpData, modulesCommandsData) {
@@ -80,9 +63,8 @@ async function initModuleWithSubcommands(module, moduleHelpData, modulesCommands
   
   const commandsExecData = [];
   
-  const commands = fs.readdirSync(`${__dirname}/${module}/commands/`)
-    .filter(f => f.endsWith('.js'));
   
+  const commands = fs.readdirSync(`${__dirname}/${module}/commands/`).filter(f => f.endsWith('.js'));
   
   for (let command of commands) {
     
@@ -102,13 +84,12 @@ async function initModuleWithSubcommands(module, moduleHelpData, modulesCommands
     
     const subcommand = interaction.options.getSubcommand();
     
-    for (let command of commandsExecData) 
+    for (let command of commandsExecData)
       if (subcommand === command.name)
         command.execute(interaction);
     
   }
   
   bot.commands.set(slashCommand.name, {data: slashCommand, execute});
-  
   
 }

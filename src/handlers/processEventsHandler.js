@@ -3,8 +3,7 @@ const fs = require('fs');
 
 module.exports = async () => {
   
-  const events = fs.readdirSync(`${__main}/events`)
-    .filter(f => f.startsWith('proc.') && f.endsWith('.js'));
+  const events = fs.readdirSync(`${__main}/events`).filter(f => f.startsWith('proc.') && f.endsWith('.js'));
   
   for (let event of events) {
     

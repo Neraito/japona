@@ -1,14 +1,13 @@
 global.__main = __dirname;
 
-
 (async () => {
   
   require('dotenv').config();
   const config = require(`${__main}/config/config.json`);
   const { Client, Collection, Intents } = require('discord.js');
   
-  global.bot = new Client({ intents: new Intents(config.intents) });
   
+  global.bot = new Client({ intents: new Intents(config.intents) });
   bot.commands = new Collection();
   bot.buttons = new Collection();
   
