@@ -13,9 +13,10 @@ global.__main = __dirname;
   
   
   await require(`${__main}/mongo/index.js`)();
-  require(`${__main}/modules/index.js`)();
+  require(`${__main}/commands/index.js`)();
   require(`${__main}/handlers/index.js`)();
   
+  //require(`${__main}/commands/updateSlashes.js`)(config.guildId)
   
   bot.login(process.env.TOKEN);
   

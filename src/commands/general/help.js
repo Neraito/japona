@@ -5,40 +5,37 @@ const fs = require('fs');
 const icons = require(`${__main}/utils/constants.js`).icons;
 
 
+const commandName = 'help';
+
+
 module.exports.help = {
   
-  name: "/help",
+  name: `/${commandName}`,
   description: "_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._"
   
 };
 
+module.exports.slash = new SlashCommandBuilder()
+  .setName(commandName)
+  .setDescription('Список команд с описанием.');
+
+module.exports.name = commandName;
+module.exports.execute = commandExecution;
+
 
 const pageSize = 3;
 
-
-module.exports.cmd = {
+async function commandExecution(interaction) {
   
-  data: new SlashCommandBuilder()
-  .setName('help')
-  .setDescription('Список команд с описанием.'),
-
-
-  async execute(interaction) {
-    
-    let category = 0;
-    let page = 1;
-    
-    let helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
-    await interaction.reply(helpMessage);
-    
-  },
+  let category = 0;
+  let page = 1;
   
+  let helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
+  await interaction.reply(helpMessage);
   
-};
+}
 
-
-
-module.exports.btn = [
+module.exports.buttons = [
   
   {
     name: "helpCategory1",

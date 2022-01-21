@@ -19,7 +19,7 @@ async function runCommand(interaction) {
   if (!command) return;
   
   try {
-    await command.execute(interaction);
+    await command(interaction);
   }
   catch (error) {
     console.error(error);

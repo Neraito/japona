@@ -2,79 +2,87 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
+
+const commandName = 'ping';
+
+
 module.exports.help = {
-  name: "/ping",
+  
+  name: `/${commandName}`,
   description: "_Пингующая тыкалка с кнопками._"
+  
 };
 
-module.exports.cmd = {
-  data: new SlashCommandBuilder()
-  .setName('ping')
-  .setDescription('Отвечает словом Pong!'),
+module.exports.slash = new SlashCommandBuilder()
+  .setName(commandName)
+  .setDescription('Отвечает словом Pong!');
 
-  async execute(interaction) {
-    //console.log(interaction)
-    const row = new MessageActionRow()
-    .addComponents(
-      new MessageButton()
-      .setCustomId('PingButton')
-      .setLabel('Ping')
-      .setStyle('PRIMARY'),
-      new MessageButton()
-      .setCustomId('PingPongButton')
-      .setLabel('Pong')
-      .setStyle('PRIMARY'),
-      new MessageButton()
-      .setCustomId('PingStopButton')
-      .setLabel('Stop')
-      .setStyle('DANGER'),
-    );
-    
-    const row2 = new MessageActionRow()
-    .addComponents(
-      new MessageSelectMenu()
-        .setCustomId('testSelectMenu')
-        .setPlaceholder('Где ты здесь пинг увидел?')
-        .addOptions([
-          {
-            label: 'Пинг?',
-            description: 'В общем...',
-            value: 'PingMenuOption1'
-          },
-          {
-            label: 'Понг?',
-            description: 'Если хочешь реальный пинг...',
-            value: 'PingMenuOption2'
-          },
-          {
-            label: 'или Пинг?',
-            description: 'Тебе просто нужно поставить...',
-            value: 'PingMenuOption3'
-          },
-          {
-            label: 'или Понг?',
-            description: 'Символ @ перед ником...',
-            value: 'PingMenuOption4'
-          },
-          {
-            label: 'может всетаки Пинг?',
-            description: 'И тогда тебя человек возненавидит.',
-            value: 'PingMenuOption5'
-          },
-        ])
-    );
-    
-    //console.log(interaction)
-    //console.log(await permissionsController.check(6, interaction));
-    
-    await interaction.reply({
-      content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2]
-    });
-  },
-};
+module.exports.name = commandName;
+module.exports.execute = commandExecution;
 
 
-module.exports.btn = [
+async function commandExecution(interaction) {
+  //console.log(interaction)
+  const row = new MessageActionRow()
+  .addComponents(
+    new MessageButton()
+    .setCustomId('PingButton')
+    .setLabel('Ping')
+    .setStyle('PRIMARY'),
+    new MessageButton()
+    .setCustomId('PingPongButton')
+    .setLabel('Pong')
+    .setStyle('PRIMARY'),
+    new MessageButton()
+    .setCustomId('PingStopButton')
+    .setLabel('Stop')
+    .setStyle('DANGER'),
+  );
+  
+  const row2 = new MessageActionRow()
+  .addComponents(
+    new MessageSelectMenu()
+      .setCustomId('testSelectMenu')
+      .setPlaceholder('Где ты здесь пинг увидел?')
+      .addOptions([
+        {
+          label: 'Пинг?',
+          description: 'В общем...',
+          value: 'PingMenuOption1'
+        },
+        {
+          label: 'Понг?',
+          description: 'Если хочешь реальный пинг...',
+          value: 'PingMenuOption2'
+        },
+        {
+          label: 'или Пинг?',
+          description: 'Тебе просто нужно поставить...',
+          value: 'PingMenuOption3'
+        },
+        {
+          label: 'или Понг?',
+          description: 'Символ @ перед ником...',
+          value: 'PingMenuOption4'
+        },
+        {
+          label: 'может всетаки Пинг?',
+          description: 'И тогда тебя человек возненавидит.',
+          value: 'PingMenuOption5'
+        },
+      ])
+  );
+  
+  //console.log(interaction)
+  //console.log(await permissionsController.check(6, interaction));
+  
+  await interaction.reply({
+    content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2]
+  });
+}
+
+
+module.exports.buttons = [
   {
     name: "PingButton",
     async execute(interaction) {

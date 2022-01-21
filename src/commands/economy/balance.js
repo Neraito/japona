@@ -15,6 +15,7 @@ const permissionsPath = 'economy/balance';
 module.exports.help = {
   
   name: commandName,
+  aliases: [ 'баланс' ],
   description: `_Крч тута можна посмотретб сколька у тибя денях и тута еще можна добавить и убавить денях, вооот._
 ${icons.options1} **Доступные опции команды:**
 ・**\`target\`** _(Можно указать пользователя, без этой опции команда применяется на вызвавшего команду)_
@@ -24,7 +25,7 @@ ${icons.options1} **Доступные опции команды:**
 };
 
 
-module.exports.init = (slashCommand, commandsExecData) => {
+module.exports.slash = (slashCommand) => {
   
   slashCommand.addSubcommand(subcommand =>
     subcommand
@@ -34,12 +35,11 @@ module.exports.init = (slashCommand, commandsExecData) => {
     .addStringOption(option => option.setName('remove').setDescription('Сколько удалить с баланса.\n️🛡 Нужна роль с доступом!'))
     .addUserOption(option => option.setName('target').setDescription('На кого использовать команду.'))
   );
-  commandsExecData.push({
-    name: commandName,
-    execute: commandExecution
-  });
   
 };
+
+module.exports.name = commandName;
+module.exports.execute = commandExecution;
 
 
 async function commandExecution(interaction) {

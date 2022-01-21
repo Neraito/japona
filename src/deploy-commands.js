@@ -18,7 +18,7 @@ require(`${__main}/mongo/index.js`)().then(slashCommandsDeploy());
 
 async function slashCommandsDeploy() {
   
-  let botCommands = await require(`${__main}/modules/index.js`)();
+  let botCommands = await require(`${__main}/commandsModules/index.js`)();
   //console.log(botCommands)
   
   const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
