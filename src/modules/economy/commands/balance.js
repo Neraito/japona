@@ -3,10 +3,10 @@ const { MessageActionRow, MessageButton } = require('discord.js');
 const checkPerms = require(`${__main}/controllers/permissionsController.js`).check;
 
 const icons = require(`${__main}/utils/constants.js`).icons;
+const { Guilds, Profile } = require(`${__main}/mongo/index.js`).schemas;
 
-const Profile = require(`${__main}/schemas/Profile.js`);
-const Guilds = require(`${__main}/schemas/Guilds.js`);
 
+const numbers = new Intl.NumberFormat('de-DE');
 
 const commandName = 'balance';
 const permissionsPath = 'economy/balance';
@@ -21,10 +21,8 @@ ${icons.options1} **Доступные опции команды:**
 ・**\`add\`** _(Используется для увеличения баланса пользователя, доступно только админам)_
 ・**\`remove\`** _(Используется для уменьшения баланса пользователя, доступно только админам)_`
   
-  
-  
-  
 };
+
 
 module.exports.init = (slashCommand, commandsExecData) => {
   
@@ -41,27 +39,23 @@ module.exports.init = (slashCommand, commandsExecData) => {
     execute: commandExecution
   });
   
-  
-  
-  
 };
 
-// === /// === /// === // === === === //
 
 async function commandExecution(interaction) {
   
   let add = interaction.options.getString('add');
   let remove = interaction.options.getString('remove');
   
+  Guilds.create()
+  
   if (!add && !remove) await showBalance(interaction);
   if (add && !remove) await addBalance(interaction);
   if (!add && remove) await removeBalance(interaction);
   if (add && remove) interaction.reply({ content: 'Выбери что-то одно: добавить или убавить.', ephemeral: true });
   
-  
-  
-  
 }
+
 
 const showBalance = async (interaction) => {
   
@@ -70,11 +64,11 @@ const showBalance = async (interaction) => {
   
   await interaction.reply([
     `>>> <@${profile.userId}>`,
-    `Баланс: ${new Intl.NumberFormat().format(profile.balance*1)}`
+    `Баланс: ${numbers.format(profile.balance*1)}`
   ].join('\n'));
   
-  
 };
+
 
 const addBalance = async (interaction) => {
   
@@ -94,11 +88,11 @@ const addBalance = async (interaction) => {
   
   await interaction.reply([
     `>>> <@${profile.userId}>`,
-    `Баланс: ${new Intl.NumberFormat().format(profile.balance*1)}`
+    `Баланс: ${numbers.format(profile.balance*1)}`
   ].join('\n'));
   
-  
 };
+
 
 const removeBalance = async (interaction) => {
   
@@ -121,8 +115,7 @@ const removeBalance = async (interaction) => {
   
   await interaction.reply([
     `>>> <@${profile.userId}>`,
-    `Баланс: ${new Intl.NumberFormat().format(profile.balance*1)}`
+    `Баланс: ${numbers.format(profile.balance*1)}`
   ].join('\n'));
-  
   
 };

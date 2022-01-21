@@ -7,7 +7,7 @@ module.exports = {
   once: true,
   async execute(bot) {
     
-    console.log(`Готово! Бот залогинен под аккаунтом ${bot.user.tag}`);
+    console.log(`[SUCCESS] Бот залогинен под аккаунтом ${bot.user.tag}`);
     
     global.helpData = createHelpData();
     

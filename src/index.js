@@ -12,12 +12,7 @@ global.__main = __dirname;
   bot.buttons = new Collection();
   
   
-  const mongoose = require('mongoose');
-  await mongoose.connect(process.env.MONGO_URI).then(() => {
-    console.log("Успешное подключение к Mongo");
-  });
-  
-  
+  await require(`${__main}/mongo/index.js`)();
   require(`${__main}/modules/index.js`)();
   require(`${__main}/handlers/index.js`)();
   

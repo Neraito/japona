@@ -1,5 +1,5 @@
-const botEventsHandler = require(`${__main}/handlers/botEventsHandler.js`);
-const processEventsHandler = require(`${__main}/handlers/processEventsHandler.js`);
+const botEventsHandler = require(`./botEventsHandler.js`);
+const processEventsHandler = require(`./processEventsHandler.js`);
 
 
 module.exports = async () => {

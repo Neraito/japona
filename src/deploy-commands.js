@@ -13,24 +13,20 @@ bot.commands = new Collection();
 bot.buttons = new Collection();
 
 
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_URI).then(() => {
-  console.log("Успешное подключение к Mongo");
-  slashCommandsDeploy();
-});
+require(`${__main}/mongo/index.js`)().then(slashCommandsDeploy());
 
 
 async function slashCommandsDeploy() {
   
   let botCommands = await require(`${__main}/modules/index.js`)();
-  console.log(botCommands)
+  //console.log(botCommands)
   
   const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
   rest.put(
     Routes.applicationGuildCommands(config.botId, config.guildId),
     { body: botCommands }
   )
-  .then(() => console.log('Успешно зарегистрированы команды приложения.'))
+  .then(() => console.log('[SUCCESS] Успешно зарегистрированы команды приложения.'))
   .catch(console.error);
   
 }

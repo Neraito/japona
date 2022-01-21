@@ -1,4 +1,4 @@
-const Guilds = require(`${__main}/schemas/Guilds.js`);
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
 const { Collection } = require('discord.js');
 
 

@@ -13,4 +13,4 @@ const economySchema = new mongoose.Schema({
 });
 
 
-module.exports = mongoose.model('economies', economySchema);
+module.exports.schema = mongoose.model('economies', economySchema);

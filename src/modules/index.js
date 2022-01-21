@@ -2,7 +2,7 @@ const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const config = require(`${__main}/config/config.json`);
-const Guilds = require(`${__main}/schemas/Guilds.js`);
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
 
 
 module.exports = async () => {
