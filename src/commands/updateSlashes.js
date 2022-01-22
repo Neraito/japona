@@ -52,11 +52,13 @@ async function getSlashesData(guildId) {
 }
 
 
+
 async function initCommandsModuleWithoutSubcommands(guildId, commandsModule, slashesData) {
   
   const commands = fs.readdirSync(`${__dirname}/${commandsModule}/`).filter(file => file.endsWith('.js'));
   
   for (let command of commands) {
+    if (!devCommandOnDevServer(command, guildId)) continue;
     command = require(`${__dirname}/${commandsModule}/${command}`);
     slashesData.push(command.slash.toJSON());
   }
@@ -73,10 +75,30 @@ async function initCommandsModuleWithSubcommands(guildId, commandsModule, slashe
   const commands = fs.readdirSync(`${__dirname}/${commandsModule}/`).filter(f => f.endsWith('.js'));
   
   for (let command of commands) {
+    if (!devCommandOnDevServer(command, guildId)) continue;
     command = require(`${__dirname}/${commandsModule}/${command}`);
     command.slash(slashCommand);
   }
   
   slashesData.push(slashCommand.toJSON());
+  
+}
+
+
+
+function devCommandOnDevServer(commandName, guildId) {
+  
+  const devCommands = [
+    'update-slashes.js'
+  ];
+  const devServers = [
+    '831878963839107112'    // ФаньСи
+  ];
+  
+  const isDevCommand = devCommands.includes(commandName);
+  const isDevServer = devServers.includes(guildId);
+  
+  if (!isDevCommand) return true;
+  return (isDevCommand && isDevServer) ? true : false;
   
 }
