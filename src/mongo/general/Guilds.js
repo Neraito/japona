@@ -23,12 +23,28 @@ const guildsSchema = new mongoose.Schema({
         { type: String }
       ]
     }
-  }
+  },
+  disabledCommands: [
+    { type: String }
+  ]
 });
 
-module.exports = mongoose.model('guilds', guildsSchema);
+const Model = mongoose.model('guilds', guildsSchema);
+module.exports = Model;
 
 
-module.exports.create = async () => {
+module.exports.create = async (guildId) => {
   console.log("добавляем новый сервер в бд");
+  
+  /*const lvls = [];
+  for (let i = 0; i < 10; i++) lvls.push(null);
+  
+  const data = {
+    guildId: guildId,
+    permissionLvls: lvls,
+  }
+  
+  const result = Model.find({ guildId: guildId });
+  if (!result) Model.create({ data });*/
+  
 };

@@ -14,6 +14,7 @@ module.exports.check = async (defaultLvl, commandPermissionsPath, interaction) =
   
   if (commandPerms?.roles) {
     console.log(commandPerms.roles)
+    
     const memberPermRole = await member.roles.cache.find(r => {
       for (let role of commandPerms.roles) {
         if (r.id == role) return r.id;
@@ -21,6 +22,7 @@ module.exports.check = async (defaultLvl, commandPermissionsPath, interaction) =
     });
     console.log('роль: ' + memberPermRole?.id)
     if (memberPermRole?.id) return true;
+    
   };
   
   

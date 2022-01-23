@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 
-const icons = require(`${__main}/utils/constants.js`).icons;
+const { icons, invisibleImage } = require(`${__main}/utils/constants.js`);
 
 
 const commandName = 'help';
@@ -23,17 +23,18 @@ module.exports.name = commandName;
 module.exports.execute = commandExecution;
 
 
-const pageSize = 3;
+const pageSize = 2;
 
 async function commandExecution(interaction) {
   
-  let category = 0;
-  let page = 1;
+  const category = 0;
+  const page = 1;
   
-  let helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
+  const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
   await interaction.reply(helpMessage);
   
 }
+
 
 module.exports.buttons = [
   
@@ -41,14 +42,13 @@ module.exports.buttons = [
     name: "helpCategory1",
     async execute(interaction) {
       
-      console.log(interaction)
+      //console.log(interaction.message.embeds)
       
-      let category = interaction.values[0].split('hc')[1];
-      let page = 1;
+      const category = interaction.values[0].split('hc')[1];
+      const page = 1;
       
-      let helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
-      await interaction.update(helpMessage);
-      
+      const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
+      interaction.update(helpMessage);
       
     }
   },
@@ -56,24 +56,22 @@ module.exports.buttons = [
     name: "helpLeft1",
     async execute(interaction) {
       
-      let category = interaction.message.embeds[0].footer.text
-        .split(' ')[3];
+      const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
+      console.log(embedParams)
       
-      let page = parseInt(interaction.message.embeds[0].footer.text
-        .split(' ')[2].split('/')[0]);
-      page -= 1;
+      const category = embedParams.category;
+      let page = embedParams.page - 1;
       
       
       if (page <= 1) {
         page = 1;
-        let helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
         interaction.update(helpMessage);
       }
       else {
-        let helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
         interaction.update(helpMessage);
       }
-      
       
     }
   },
@@ -81,24 +79,22 @@ module.exports.buttons = [
     name: "helpLeft2",
     async execute(interaction) {
       
-      let category = interaction.message.embeds[0].footer.text
-        .split(' ')[3];
+      const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
+      console.log(embedParams)
       
-      let page = parseInt(interaction.message.embeds[0].footer.text
-        .split(' ')[2].split('/')[0]);
-      page -= 5;
+      const category = embedParams.category;
+      let page = embedParams.page - 5;
       
       
       if (page <= 1) {
         page = 1;
-        let helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
         interaction.update(helpMessage);
       }
       else {
-        let helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
         interaction.update(helpMessage);
       }
-      
       
     }
   },
@@ -106,28 +102,23 @@ module.exports.buttons = [
     name: "helpRight1",
     async execute(interaction) {
       
-      let category = interaction.message.embeds[0].footer.text
-        .split(' ')[3];
+      const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
+      console.log(embedParams)
       
-      let page = parseInt(interaction.message.embeds[0].footer.text
-        .split(' ')[2].split('/')[0]);
-      page += 1;
-      
-      let lastPage = interaction.message.embeds[0].footer.text
-        .split(' ')[2].split('/')[1];
-      lastPage = parseInt(lastPage.slice(0, lastPage.length - 4));
+      const category = embedParams.category;
+      let page = embedParams.page + 1;
+      const lastPage = embedParams.lastPage;
       
       
       if (page >= lastPage) {
         page = lastPage;
-        let helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,1,1,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,1,1,0]);
         interaction.update(helpMessage);
       }
       else {
-        let helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
         interaction.update(helpMessage);
       }
-      
       
     }
   },
@@ -135,28 +126,23 @@ module.exports.buttons = [
     name: "helpRight2",
     async execute(interaction) {
       
-      let category = interaction.message.embeds[0].footer.text
-        .split(' ')[3];
+      const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
+      console.log(embedParams)
       
-      let page = parseInt(interaction.message.embeds[0].footer.text
-        .split(' ')[2].split('/')[0]);
-      page += 5;
-      
-      let lastPage = interaction.message.embeds[0].footer.text
-        .split(' ')[2].split('/')[1];
-      lastPage = parseInt(lastPage.slice(0, lastPage.length - 4));
+      const category = embedParams.category;
+      let page = embedParams.page + 5;
+      const lastPage = embedParams.lastPage;
       
       
       if (page >= lastPage) {
         page = lastPage;
-        let helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,1,1,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,1,1,0]);
         interaction.update(helpMessage);
       }
       else {
-        let helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
         interaction.update(helpMessage);
       }
-      
       
     }
   },
@@ -164,18 +150,18 @@ module.exports.buttons = [
     name: "helpTypePage1",
     async execute(interaction) {
       
-      let category = interaction.message.embeds[0].footer.text
-        .split(' ')[3];
-        
-      let lastPage = interaction.message.embeds[0].footer.text
-        .split(' ')[2].split('/')[1];
-      lastPage = lastPage.slice(0, lastPage.length - 4);
+      const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
+      console.log(embedParams)
+      
+      const category = embedParams.category;
+      const lastPage = embedParams.lastPage;
+      
       
       await interaction.reply({content: "Отправьте в чат номер страницы!", ephemeral: true});
       
       
-      let filter = (m) => { return m.author.id === interaction.user.id };
-      let collector = interaction.channel.createMessageCollector({filter, time: 20000});
+      const filter = (m) => { return m.author.id === interaction.user.id };
+      const collector = interaction.channel.createMessageCollector({filter, time: 20000});
       
       
       collector.on('collect', (message) => {
@@ -187,23 +173,23 @@ module.exports.buttons = [
         if (page < 1) page = 1;
         if (page > lastPage) page = lastPage;
         
-        let helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+        const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
         interaction.editReply(helpMessage);
         
       });
       
-      
     }
   },
   
-  
-  
 ];
+
+
 
 function getHelp(interaction, category, page, pageSize, buttonsState) {
   
-  let commands = helpData.commands[category];
-  let categories = helpData.categories[category];
+  const commands = helpData.commands[category];
+  const categories = helpData.categories[category];
+  
   
   let lastPage = Math.ceil(commands.length / pageSize);
   if (page > lastPage) page = lastPage;
@@ -218,20 +204,21 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
     
     if (i < commands.length) {
       helpDesc = [
-      helpDesc,
-      `${icons.slash1} ${categories.path} **${commands[i].name}**`,
-      `${commands[i].description}\n`
+        helpDesc,
+        `${icons.slash1} ${categories.path} **${commands[i].name}**`,
+        `${commands[i].description}\n`
       ].join('\n');
     }
     
   }
   
   
-  let helpEmbed = new MessageEmbed()
+  const helpEmbed = new MessageEmbed()
     .setColor('#ff99ff')
     .setTitle(`**${categories.name}** `)
-    .setDescription(helpDesc/*helpDesc.slice(0, helpDesc.length - 1)*/ + '_ _')
-    .setFooter(`📖 Страница: ${page}/${lastPage}\n🆔️ ${category}`);
+    .setDescription(helpDesc + '_ _')
+    .setFooter(`📖 Страница: ${page}/${lastPage}`)
+    .setThumbnail(`${invisibleImage}??{"category":"${category}","page":"${page}","lastPage":"${lastPage}"}`);
   
   
   const row = new MessageActionRow()
@@ -264,7 +251,7 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
   );
   
   
-  let categoryOptions = [];
+  const categoryOptions = [];
   for (let i = 0; i < helpData.categories.length; i++) {
     
     categoryOptions.push({
@@ -281,14 +268,14 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
       .setCustomId('helpCategory1')
       .setPlaceholder('Выберите категорию')
       .addOptions(categoryOptions)
-      .setDisabled(buttonsState[5]),
+      .setDisabled(buttonsState[5])
   );
+  
   
   return {
     embeds: [helpEmbed],
     components: [row, row2]
   };
-  
   
   
 }
