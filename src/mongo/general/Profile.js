@@ -2,14 +2,10 @@ const mongoose = require('mongoose');
 
 
 const profileSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true
-  },
-  balance: {
-    type: String,
-    default: "0"
-  }
+	
+	userId: { type: String, required: true },
+	balance: { type: String, default: "0" }
+	
 });
 
 
