@@ -7,13 +7,13 @@ const { icons, invisibleImage } = require(`${__main}/utils/constants.js`);
 const commandName = 'help';
 
 module.exports.help = {
-	name: `/${commandName}`,
-	description: `_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._`			
+	 	name: `/${commandName}`,
+	 	description: `_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._`			
 };
 
 module.exports.slash = new SlashCommandBuilder()
-	 		.setName(commandName)
-	 		.setDescription('Список команд с описанием.');
+ 		.setName(commandName)
+ 		.setDescription('Список команд с описанием.');
 
 module.exports.name = commandName;
 module.exports.execute = commandExecution;
@@ -24,8 +24,7 @@ const pageSize = 2;
 async function commandExecution(interaction) {
 	const category = 0;
 	const page = 1;
-	const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
-	await interaction.reply(helpMessage);
+	await sendHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
 }
 
 
@@ -36,8 +35,7 @@ module.exports.buttons = [
 		//console.log(interaction.message.embeds)
 		const category = interaction.values[0].split('hc')[1];
 		const page = 1;
-		const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
-		await interaction.update(helpMessage);
+		await sendHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
 	}
 },
 {
@@ -48,15 +46,8 @@ module.exports.buttons = [
 		const category = embedParams.category;
 		let page = embedParams.page - 1;
 		
-		if (page <= 1) {
-			page = 1;
-			const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
-			await interaction.update(helpMessage);
-		}
-		else {
-			const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
-			await interaction.update(helpMessage);
-		}
+		if (page <= 1) await sendHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]);
+		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
 	}
 },
 {
@@ -67,15 +58,8 @@ module.exports.buttons = [
 		const category = embedParams.category;
 		let page = embedParams.page - 5;
 		
-		if (page <= 1) {
-			page = 1;
-			const helpMessage = getHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
-			await interaction.update(helpMessage);
-		}
-		else {
-			const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
-			await interaction.update(helpMessage);
-		}
+		if (page <= 1) await sendHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]);
+		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
 	}
 },
 {
@@ -86,17 +70,9 @@ module.exports.buttons = [
 		const category = embedParams.category;
 		let page = embedParams.page + 1;
 		const lastPage = embedParams.lastPage;
-
-		if (page >= lastPage) {
-			page = lastPage;
-			const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,1,1,0]);
-			await interaction.update(helpMessage);
-		}
-		else {
-			const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
-			await interaction.update(helpMessage);
-		}
-
+		
+		if (page >= lastPage) await sendHelp(interaction, category, lastPage, pageSize, [0,0,0,1,1,0]);
+		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
 	}
 },
 {
@@ -108,15 +84,8 @@ module.exports.buttons = [
 		let page = embedParams.page + 5;
 		const lastPage = embedParams.lastPage;
 		
-		if (page >= lastPage) {
-			page = lastPage;
-			const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,1,1,0]);
-			await interaction.update(helpMessage);
-		}
-		else {
-			const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
-			await interaction.update(helpMessage);
-		}
+		if (page >= lastPage) await sendHelp(interaction, category, lastPage, pageSize, [0,0,0,1,1,0]);
+		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
 	}
 },
 {
@@ -127,7 +96,7 @@ module.exports.buttons = [
 		const category = embedParams.category;
 		const lastPage = embedParams.lastPage;
 		
-		await interaction.reply({content: "Отправьте в чат номер страницы!", ephemeral: true});
+		await interaction.reply({ content: "Отправьте в чат номер страницы!", ephemeral: true });
 		
 		const filter = (m) => { return m.author.id === interaction.user.id };
 		const collector = interaction.channel.createMessageCollector({filter, time: 20000});
@@ -140,17 +109,30 @@ module.exports.buttons = [
 			if (page < 1) page = 1;
 			if (page > lastPage) page = lastPage;
 			
-			const helpMessage = getHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
-			await interaction.editReply(helpMessage);
+			await editHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
 		});
 	}
 },
 ];
 
 
+async function sendHelp(...args) {
+	const help = await prepareHelp(...args);
+	return args[0].reply(help);
+}
+async function sendHelpEphemeral(...args) {
+	const help = await prepareHelp(...args);
+	help['ephemeral'] = true;
+	return args[0].reply(help);
+}
+async function editHelp(...args) {
+	const help = await prepareHelp(...args);
+	return args[0].editReply(help);
+}
 
-function getHelp(interaction, category, page, pageSize, buttonsState) {
+async function prepareHelp(interaction, category, page, pageSize, buttonsState) {
 	
+	const helpData = await buildHelp();
 	const commands = helpData.commands[category];
 	const categories = helpData.categories[category];
 	
@@ -164,20 +146,22 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
   
 	let helpDesc = `**${categories.description}**\n`;
 	for (let i = pageSize * startPage; i < (pageSize * (page - 1) + pageSize); i++) {
+		
 		if (i >= commands.length) continue;
 		helpDesc = [
-			helpDesc,
-			`${icons.slash1} ${categories.path} **${commands[i].name}**`,
-			`${commands[i].description}\n`
+			 	helpDesc,
+			 	`${icons.slash1} ${categories.path} **${commands[i].name}**`,
+			 	`${commands[i].description}\n`
 		].join('\n');
+		
 	}
   
 	const helpEmbed = new MessageEmbed()
-	 			.setColor('#ff99ff')
-	 			.setTitle(`**${categories.name}** `)
-	 			.setDescription(helpDesc + '_ _')
-	 			.setFooter(`📖 Страница: ${page}/${lastPage}`)
-	 			.setThumbnail(`${invisibleImage}??{"category":"${category}","page":"${page}","lastPage":"${lastPage}"}`);
+ 			.setColor('#ff99ff')
+ 			.setTitle(`**${categories.name}** `)
+ 			.setDescription(helpDesc + '_ _')
+ 			.setFooter({ text: `📖 Страница: ${page}/${lastPage}` })
+ 			.setThumbnail(`${invisibleImage}??{"category":"${category}","page":"${page}","lastPage":"${lastPage}"}`);
   
   
 	const row = new MessageActionRow()
@@ -212,11 +196,13 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
   
 	const categoryOptions = [];
 	for (let i = 0; i < helpData.categories.length; i++) {
+		
 		categoryOptions.push({
-			 	label: helpData.categories[i].name,
-			 	description: helpData.categories[i].description,
-			 	value: `hc${i}`
+			label: helpData.categories[i].name,
+			description: helpData.categories[i].description,
+			value: `hc${i}`
 		});
+		
 	}
   
 	const row2 = new MessageActionRow()
@@ -233,4 +219,37 @@ function getHelp(interaction, category, page, pageSize, buttonsState) {
 		components: [row, row2]
 	};
   
+}
+
+
+async function buildHelp() {
+  
+	const helpCategories = [];
+	const helpCommands = [];
+	const commandsDir = `${__main}/commands`;
+	const commandsCategories = fs.readdirSync(`${commandsDir}/`).filter(f => (!f.endsWith('.js')));
+  
+	for (let category of commandsCategories) {
+		
+		const categoryHelpFile = fs.readdirSync(`${commandsDir}/${category}/`).filter(f => f.startsWith('help.') && f.endsWith('.json'));		
+		const categoryHelp = require(`${commandsDir}/${category}/${categoryHelpFile}`);
+		helpCategories.push(categoryHelp);
+		
+		const helpCommandsTemp = [];
+		const categoryCommands = fs.readdirSync(`${commandsDir}/${category}/`).filter(f => f.endsWith('.js'));
+		
+		for (let command of categoryCommands) {
+			command = require(`${commandsDir}/${category}/${command}`);
+			helpCommandsTemp.push(command.help);
+		}
+		
+		helpCommands.push(helpCommandsTemp);
+		
+	}
+	
+	return {
+		categories: helpCategories,
+		commands: helpCommands
+	};
+	
 }
