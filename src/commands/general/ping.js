@@ -3,30 +3,30 @@ const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
 
-module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
+const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
 
-module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+const commandIsDisabled = async function (guildId) {
 	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
 };
 
-module.exports.help = helpData = {
+const commandHelp = {
 	name: commandName,
 	aliases: [ 'пинг' ],
 	description: [
 		`_Пингующая тыкалка с кнопками._`
 	].join('\n'),
 	id: commandId,
-	isDisabled: isCommandDisabled,
+	isDisabled: commandIsDisabled,
 };
 
-module.exports.slash = new SlashCommandBuilder()
+const commandSlash = new SlashCommandBuilder()
 	 		  .setName(commandName)
 	 		  .setDescription('Отвечает словом Pong!');
 
 
-module.exports.execute = async function commandExecution(interaction) {
-	//console.log(interaction)
+async function commandExecution(interaction) {
+      //console.log(interaction)
 	const row = new MessageActionRow()
 	.addComponents(
 	new MessageButton()
@@ -81,6 +81,15 @@ module.exports.execute = async function commandExecution(interaction) {
 	  //console.log(await permissionsController.check(6, interaction));
   
   await interaction.reply({ content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2] });			
+};
+
+module.exports = {
+      name: commandName,
+      id: commandId,
+      isDisabled: commandIsDisabled,
+      help: commandHelp,
+      slash: commandSlash,
+      execute: commandExecution
 };
 
 

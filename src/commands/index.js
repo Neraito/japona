@@ -11,6 +11,7 @@ module.exports = async () => {
 		if (commandsModuleHelpFileData?.id) await initCommandsModuleWithSubcommands(commandsModule);
 		if (!commandsModuleHelpFileData?.id) await initCommandsModuleWithoutSubcommands(commandsModule);
 	}
+	console.log(bot.commands)
 };
 
 

@@ -4,15 +4,14 @@ const permissionsController = require(`${__main}/controllers/permissionsControll
 
 const icons = require(`${__main}/utils/constants.js`).icons;
 
+const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
 
-module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
-
-module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+const commandIsDisabled = async function (guildId) {
 	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
 };
 
-module.exports.help = helpData = {
+const commandHelp = {
 	name: commandName,
 	aliases: [ 'обновить-слэши' ],
 	description: [
@@ -21,16 +20,16 @@ module.exports.help = helpData = {
 		`・**\`server\`** _(Можно указать айди другого сервера.)_`
 	].join('\n'),
 	id: commandId,
-	isDisabled: isCommandDisabled,
+	isDisabled: commandIsDisabled,
 };
 
-module.exports.slash = new SlashCommandBuilder()
-	 		.setName(commandName)
-	 		.setDescription('Обновляет слэш команды на сервере')
-	 		.addStringOption(option => option.setName('server').setDescription('Укажите id сервера который хотите обновить!'));
+const commandSlash = new SlashCommandBuilder()
+ 	.setName(commandName)
+ 	.setDescription('Обновляет слэш команды на сервере')
+ 	.addStringOption(option => option.setName('server').setDescription('Укажите id сервера который хотите обновить!'));
 
 
-module.exports.execute = async function commandExecution(interaction) {
+async function commandExecution(interaction) {
       
 	if (interaction.user.id != '612409053955620898') return interaction.reply({ content: 'Только создатель бота может использовать эту команду!', ephemeral: true });			
 	const server = interaction.options.getString('server');
@@ -57,6 +56,15 @@ module.exports.execute = async function commandExecution(interaction) {
 		}
 	}
 	
+};
+
+module.exports = {
+      name: commandName,
+      id: commandId,
+      isDisabled: commandIsDisabled,
+      help: commandHelp,
+      slash: commandSlash,
+      execute: commandExecution
 };
 
 //module.exports.buttons = [];

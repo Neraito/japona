@@ -5,34 +5,43 @@ const fs = require('fs');
 const { icons, invisibleImage } = require(`${__main}/utils/constants.js`);
 
 
-module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
+const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
 
-module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+const commandIsDisabled = async function (guildId) {
 	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
 };
 
-module.exports.help = helpData = {
+const commandHelp = {
 	name: commandName,
 	aliases: [ 'хелп' ],
 	description: [
 		`_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._`
 	].join('\n'),
 	id: commandId,
-	isDisabled: isCommandDisabled,
+	isDisabled: commandIsDisabled,
 };
 
-module.exports.slash = new SlashCommandBuilder()
+const commandSlash = new SlashCommandBuilder()
  	.setName(commandName)
  	.setDescription('Список команд с описанием.');
 
 
 const pageSize = 2;
 
-module.exports.execute = async function commandExecution(interaction) {
-	const category = 0;
+async function commandExecution(interaction) {
+      const category = 0;
 	const page = 1;
 	await interaction.reply( await prepareHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]) );
+};
+
+module.exports = {
+      name: commandName,
+      id: commandId,
+      isDisabled: commandIsDisabled,
+      help: commandHelp,
+      slash: commandSlash,
+      execute: commandExecution
 };
 
 

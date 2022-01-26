@@ -8,14 +8,14 @@ const numbers = new Intl.NumberFormat();
 console.log(__filename.split('/').slice(-1).join('/').slice(0, -3))
 console.log(__filename.split('/').slice(-2).join('/').slice(0, -3))
 
-module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
+const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
 
-module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+const commandIsDisabled = async function (guildId) {
 	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
 };
 
-module.exports.help = helpData = {
+const commandHelp = {
 	name: commandName,
 	subcommandCategory: commandId.split('/')[0],
 	aliases: [ 'баланс' ],
@@ -27,7 +27,7 @@ module.exports.help = helpData = {
 	 	`・**\`remove\`** _(Используется для уменьшения баланса пользователя, доступно только админам)_`
 	].join('\n'),
 	id: commandId,
-	isDisabled: isCommandDisabled,
+	isDisabled: commandIsDisabled,
 	options: [
 	 	{ name: 'target', description: `Можно указать пользователя, без этой опции команда применяется на вызвавшего команду` },
 	 	{ name: 'add', defaultLevel: 6, description: `Используется для увеличения баланса пользователя, доступно только админам` },
@@ -35,7 +35,7 @@ module.exports.help = helpData = {
 	]
 };
 
-module.exports.slash = (slashCommand) => {
+function commandSlash(slashCommand) {
 	slashCommand.addSubcommand(subcommand =>
 		subcommand.setName(commandName)
 		 	.setDescription('Управление балансом пользователя.')
@@ -46,7 +46,7 @@ module.exports.slash = (slashCommand) => {
 };
 
 
-module.exports.execute = async function commandExecution(interaction) {
+async function commandExecution(interaction) {
 	const add = interaction.options.getString('add');
 	const remove = interaction.options.getString('remove');
 	
@@ -56,9 +56,21 @@ module.exports.execute = async function commandExecution(interaction) {
 	if (add && remove) interaction.reply({ content: 'Выбери что-то одно: добавить или убавить.', ephemeral: true });
 };
 
+module.exports = {
+      name: commandName,
+      id: commandId,
+      isDisabled: commandIsDisabled,
+      help: commandHelp,
+      slash: commandSlash,
+      execute: commandExecution
+};
+
 async function checkPermissions(interaction, params) {
 	const checkPerms = require(`${__main}/controllers/permissionsController.js`).check;
-	return checkPerms(helpData.options[params.optionIndex].defaultLevel, `${commandId}/${helpData.options[params.optionIndex].name}`, interaction);			
+	console.log(interaction)
+	console.log(params)
+	console.log(commandHelp)
+	return await checkPerms(commandHelp.options[params.optionIndex].defaultLevel, `${commandId}/${commandHelp.options[params.optionIndex].name}`, interaction);			
 }
 
 const showBalance = async (interaction) => {
