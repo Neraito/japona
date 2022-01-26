@@ -9,12 +9,5 @@ module.exports = {
 		right2: '<:page_right2:928276869235761252>',
 	},
 	invisibleImage: 'https://media.discordapp.net/attachments/669135667678150657/803906867323338812/Invisible_Bot_Avatar.png',		
-	defaults: {
-		permissionLevels: {
-			'economy/balance/show': 0,
-			'economy/balance/add': 6,
-			'economy/balance/remove': 6,
-		}
-	}
 	
 };
