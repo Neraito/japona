@@ -6,11 +6,8 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 
 
-module.exports = slashCommandsDeploy;
-
-
-async function slashCommandsDeploy(guildId) {
-  
+module.exports = async function slashCommandsDeploy(guildId) {
+      
 	const slashesData = await getSlashesData(guildId);
 	
 	const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
@@ -20,8 +17,8 @@ async function slashCommandsDeploy(guildId) {
 	)
 	.then(() => console.log('[SUCCESS] Успешно зарегистрированы команды приложения.'))
 	.catch(console.error);
-  
-}
+	
+};
 
 
 async function getSlashesData(guildId) {

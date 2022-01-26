@@ -4,15 +4,24 @@ const permissionsController = require(`${__main}/controllers/permissionsControll
 
 const icons = require(`${__main}/utils/constants.js`).icons;
 
-const commandName = 'update-slashes';
 
-module.exports.help = {
-	name: `/${commandName}`,
+module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
+
+module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
+};
+
+module.exports.help = helpData = {
+	name: commandName,
+	aliases: [ 'обновить-слэши' ],
 	description: [
 		`_Позволяет разработчику обновить слэш команды на сервере._`,
 		`${icons.options1} **Доступные опции команды:**`,
 		`・**\`server\`** _(Можно указать айди другого сервера.)_`
-	].join('\n')
+	].join('\n'),
+	id: commandId,
+	isDisabled: isCommandDisabled,
 };
 
 module.exports.slash = new SlashCommandBuilder()
@@ -20,11 +29,9 @@ module.exports.slash = new SlashCommandBuilder()
 	 		.setDescription('Обновляет слэш команды на сервере')
 	 		.addStringOption(option => option.setName('server').setDescription('Укажите id сервера который хотите обновить!'));
 
-module.exports.name = commandName;
-module.exports.execute = commandExecution;
 
-
-async function commandExecution(interaction) {
+module.exports.execute = async function commandExecution(interaction) {
+      
 	if (interaction.user.id != '612409053955620898') return interaction.reply({ content: 'Только создатель бота может использовать эту команду!', ephemeral: true });			
 	const server = interaction.options.getString('server');
 	
@@ -49,6 +56,7 @@ async function commandExecution(interaction) {
 			await interaction.reply({ content: `При обновлении слэш команд на сервере **${await bot.guilds.resolve(server)}** произошла ошибка!` });
 		}
 	}
-}
+	
+};
 
 //module.exports.buttons = [];

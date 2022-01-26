@@ -2,17 +2,15 @@ const fs = require('fs');
 
 
 module.exports = async () => {
-	
 	const commandsModules = fs.readdirSync(`${__dirname}/`).filter(f => (!f.endsWith('.js')));
 	
 	for (let commandsModule of commandsModules) {
 		const commandsModuleHelpFile = fs.readdirSync(`${__dirname}/${commandsModule}/`).filter(f => f.startsWith('help.') && f.endsWith('.json'));			
 		const commandsModuleHelpFileData = require(`${__dirname}/${commandsModule}/${commandsModuleHelpFile}`);
 		
-		if (commandsModuleHelpFileData.id === null) await initCommandsModuleWithoutSubcommands(commandsModule);
-		if (commandsModuleHelpFileData.id !== null) await initCommandsModuleWithSubcommands(commandsModule);
+		if (commandsModuleHelpFileData?.id) await initCommandsModuleWithSubcommands(commandsModule);
+		if (!commandsModuleHelpFileData?.id) await initCommandsModuleWithoutSubcommands(commandsModule);
 	}
-	 
 };
 
 

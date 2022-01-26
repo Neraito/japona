@@ -8,5 +8,13 @@ module.exports = {
 		right1: '<:page_right1:928276789497847838>',
 		right2: '<:page_right2:928276869235761252>',
 	},
-	invisibleImage: 'https://media.discordapp.net/attachments/669135667678150657/803906867323338812/Invisible_Bot_Avatar.png'		
+	invisibleImage: 'https://media.discordapp.net/attachments/669135667678150657/803906867323338812/Invisible_Bot_Avatar.png',		
+	defaults: {
+		permissionLevels: {
+			'economy/balance/show': 0,
+			'economy/balance/add': 6,
+			'economy/balance/remove': 6,
+		}
+	}
+	
 };

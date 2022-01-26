@@ -4,28 +4,36 @@ const fs = require('fs');
 
 const { icons, invisibleImage } = require(`${__main}/utils/constants.js`);
 
-const commandName = 'help';
 
-module.exports.help = {
-	 	name: `/${commandName}`,
-	 	description: `_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._`			
+module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
+
+module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
+};
+
+module.exports.help = helpData = {
+	name: commandName,
+	aliases: [ 'хелп' ],
+	description: [
+		`_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._`
+	].join('\n'),
+	id: commandId,
+	isDisabled: isCommandDisabled,
 };
 
 module.exports.slash = new SlashCommandBuilder()
- 		.setName(commandName)
- 		.setDescription('Список команд с описанием.');
-
-module.exports.name = commandName;
-module.exports.execute = commandExecution;
+ 	.setName(commandName)
+ 	.setDescription('Список команд с описанием.');
 
 
 const pageSize = 2;
 
-async function commandExecution(interaction) {
+module.exports.execute = async function commandExecution(interaction) {
 	const category = 0;
 	const page = 1;
-	await sendHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
-}
+	await interaction.reply( await prepareHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]) );
+};
 
 
 module.exports.buttons = [
@@ -35,7 +43,7 @@ module.exports.buttons = [
 		//console.log(interaction.message.embeds)
 		const category = interaction.values[0].split('hc')[1];
 		const page = 1;
-		await sendHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]);
+		await interaction.update( await prepareHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]) );
 	}
 },
 {
@@ -46,8 +54,8 @@ module.exports.buttons = [
 		const category = embedParams.category;
 		let page = embedParams.page - 1;
 		
-		if (page <= 1) await sendHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]);
-		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+		if (page <= 1) await interaction.update( await prepareHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]) );
+		else await interaction.update( await prepareHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]) );
 	}
 },
 {
@@ -58,8 +66,8 @@ module.exports.buttons = [
 		const category = embedParams.category;
 		let page = embedParams.page - 5;
 		
-		if (page <= 1) await sendHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]);
-		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+		if (page <= 1) await interaction.update( await prepareHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]) );
+		else await interaction.update( await prepareHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]) );
 	}
 },
 {
@@ -71,8 +79,8 @@ module.exports.buttons = [
 		let page = embedParams.page + 1;
 		const lastPage = embedParams.lastPage;
 		
-		if (page >= lastPage) await sendHelp(interaction, category, lastPage, pageSize, [0,0,0,1,1,0]);
-		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+		if (page >= lastPage) await interaction.update( await prepareHelp(interaction, category, lastPage, pageSize, [0,0,0,1,1,0]) );
+		else await interaction.update( await prepareHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]) );
 	}
 },
 {
@@ -84,8 +92,8 @@ module.exports.buttons = [
 		let page = embedParams.page + 5;
 		const lastPage = embedParams.lastPage;
 		
-		if (page >= lastPage) await sendHelp(interaction, category, lastPage, pageSize, [0,0,0,1,1,0]);
-		else await sendHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+		if (page >= lastPage) await interaction.update( await sendHelp(interaction, category, lastPage, pageSize, [0,0,0,1,1,0]) );
+		else await interaction.update( await prepareHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]) );
 	}
 },
 {
@@ -109,26 +117,13 @@ module.exports.buttons = [
 			if (page < 1) page = 1;
 			if (page > lastPage) page = lastPage;
 			
-			await editHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]);
+			await interaction.editReply( await prepareHelp(interaction, category, page, pageSize, [0,0,0,0,0,0]) );
 		});
 	}
 },
 ];
 
 
-async function sendHelp(...args) {
-	const help = await prepareHelp(...args);
-	return args[0].reply(help);
-}
-async function sendHelpEphemeral(...args) {
-	const help = await prepareHelp(...args);
-	help['ephemeral'] = true;
-	return args[0].reply(help);
-}
-async function editHelp(...args) {
-	const help = await prepareHelp(...args);
-	return args[0].editReply(help);
-}
 
 async function prepareHelp(interaction, category, page, pageSize, buttonsState) {
 	
@@ -148,20 +143,21 @@ async function prepareHelp(interaction, category, page, pageSize, buttonsState) 
 	for (let i = pageSize * startPage; i < (pageSize * (page - 1) + pageSize); i++) {
 		
 		if (i >= commands.length) continue;
+		const categoryName = (commands[i]?.subcommandCategory) ? `${commands[i].subcommandCategory} ` : '';                  
 		helpDesc = [
-			 	helpDesc,
-			 	`${icons.slash1} ${categories.path} **${commands[i].name}**`,
-			 	`${commands[i].description}\n`
+		 	helpDesc,
+		 	`${icons.slash1} /${categoryName}**${commands[i].name}**`,
+		 	`${commands[i].description}\n`
 		].join('\n');
 		
 	}
   
 	const helpEmbed = new MessageEmbed()
- 			.setColor('#ff99ff')
- 			.setTitle(`**${categories.name}** `)
- 			.setDescription(helpDesc + '_ _')
- 			.setFooter({ text: `📖 Страница: ${page}/${lastPage}` })
- 			.setThumbnail(`${invisibleImage}??{"category":"${category}","page":"${page}","lastPage":"${lastPage}"}`);
+ 		.setColor('#ff99ff')
+ 		.setTitle(`**${categories.name}** `)
+ 		.setDescription(helpDesc + '_ _')
+ 		.setFooter({ text: `📖 Страница: ${page}/${lastPage}` })
+ 		.setThumbnail(`${invisibleImage}??{"category":"${category}","page":"${page}","lastPage":"${lastPage}"}`);
   
   
 	const row = new MessageActionRow()

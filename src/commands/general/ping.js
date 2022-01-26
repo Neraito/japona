@@ -2,22 +2,30 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
-const commandName = 'ping';
 
-module.exports.help = {
-	name: `/${commandName}`,
-	description: `_Пингующая тыкалка с кнопками._`
+module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
+
+module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
+};
+
+module.exports.help = helpData = {
+	name: commandName,
+	aliases: [ 'пинг' ],
+	description: [
+		`_Пингующая тыкалка с кнопками._`
+	].join('\n'),
+	id: commandId,
+	isDisabled: isCommandDisabled,
 };
 
 module.exports.slash = new SlashCommandBuilder()
 	 		  .setName(commandName)
 	 		  .setDescription('Отвечает словом Pong!');
 
-module.exports.name = commandName;
-module.exports.execute = commandExecution;
 
-
-async function commandExecution(interaction) {
+module.exports.execute = async function commandExecution(interaction) {
 	//console.log(interaction)
 	const row = new MessageActionRow()
 	.addComponents(
@@ -73,7 +81,7 @@ async function commandExecution(interaction) {
 	  //console.log(await permissionsController.check(6, interaction));
   
   await interaction.reply({ content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2] });			
-}
+};
 
 
 module.exports.buttons = [

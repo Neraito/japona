@@ -2,22 +2,30 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
-const commandName = 'test';
 
-module.exports.help = {
-	name: `/${commandName}`,
-	description: `_Что это, одному разрабу известно._`
+module.exports.name = commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
+module.exports.id = commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
+
+module.exports.isDisabled = isCommandDisabled = async function (guildId) {
+	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
+};
+
+module.exports.help = helpData = {
+	name: commandName,
+	aliases: [ 'тест' ],
+	description: [
+		`_Что это, одному разрабу известно._`
+	].join('\n'),
+	id: commandId,
+	isDisabled: isCommandDisabled,
 };
 
 module.exports.slash = new SlashCommandBuilder()
 	 		.setName(commandName)
 	 		.setDescription('Dev tests');
 
-module.exports.name = commandName;
-module.exports.execute = commandExecution;
 
-
-async function commandExecution(interaction) {
+module.exports.execute = async function commandExecution(interaction) {
 	console.log(interaction)
 	/*const Guilds = require(`${__main}/schemas/Guilds.js`);
 	
@@ -39,6 +47,6 @@ async function commandExecution(interaction) {
 	//console.log(null + 'a')
 	
 	await interaction.reply({ content: 'да', ephemeral: true });
-}
+};
 
 //module.exports.buttons = [];

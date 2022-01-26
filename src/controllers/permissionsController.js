@@ -18,7 +18,7 @@ module.exports.check = async (defaultLvl, commandPermissionsPath, interaction) =
 	const commandPermLvl = commandPerms?.lvl || defaultLvl;
 	console.log('Required level: ' + commandPermLvl)
 	
-	const memberPermLvl = await member.roles.cache.reduce((mem, cur) => { mem = Math.max(mem, dbGuild.permissionLevelRoles.indexOf(cur.id)) }, -1);					
+	const memberPermLvl = await member.roles.cache.reduce((mem, cur) => { mem = Math.max(mem, dbGuild.permissionLevelRoles.indexOf(cur.id)); return mem }, -1);					
 	console.log('Member lvl: ' + memberPermLvl)
 	
 	if (memberPermLvl >= commandPermLvl) return true;
