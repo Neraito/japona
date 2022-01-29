@@ -9,7 +9,6 @@ module.exports.check = async (defaultLvl, commandPermissionsPath, interaction) =
 	
 	const dbGuild = await Guilds.findOne({ guildId: guild.id});
 	const commandPerms = dbGuild.commandsPermissions.get(commandPermissionsPath);
-	console.log(dbGuild.commandsPermissions)
 	
 	if (await member.roles.cache.find(r => commandPerms?.roles.includes(r.id))) return true;
 	

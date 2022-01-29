@@ -14,10 +14,11 @@ const commandHelp = {
 	name: commandName,
 	aliases: [ 'пинг' ],
 	description: [
-		`_Пингующая тыкалка с кнопками._`
+		`Пингующая тыкалка с кнопками.`
 	].join('\n'),
 	id: commandId,
 	isDisabled: commandIsDisabled,
+	defaultLevel: 0
 };
 
 const commandSlash = new SlashCommandBuilder()

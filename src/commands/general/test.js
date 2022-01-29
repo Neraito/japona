@@ -14,10 +14,11 @@ const commandHelp = {
 	name: commandName,
 	aliases: [ 'тест' ],
 	description: [
-		`_Что это, одному разрабу известно._`
+		`Что это, одному разрабу известно.`
 	].join('\n'),
 	id: commandId,
 	isDisabled: commandIsDisabled,
+	defaultLevel: 0
 };
 
 const commandSlash = new SlashCommandBuilder()
@@ -47,7 +48,7 @@ async function commandExecution(interaction) {
 	//console.log(null + 'a')
 	
 	await interaction.reply({ content: 'да', ephemeral: true });
-};
+}
 
 module.exports = {
       name: commandName,

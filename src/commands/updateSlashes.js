@@ -4,7 +4,7 @@ const config = require(`${__main}/config/config.json`);
 const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-
+const util = require('util')
 
 module.exports = async function slashCommandsDeploy(guildId) {
       
@@ -33,11 +33,11 @@ async function getSlashesData(guildId) {
 		const commandsModuleHelpFileData = require(`${__dirname}/${commandsModule}/${commandsModuleHelpFile}`);
 		//console.log(commandsModuleHelpData.id)
 		
-		if (commandsModuleHelpFileData.id === null) await initCommandsModuleWithoutSubcommands(guildId, commandsModule, slashesData);			
-		if (commandsModuleHelpFileData.id !== null) await initCommandsModuleWithSubcommands(guildId, commandsModule, slashesData, commandsModuleHelpFileData);			
+		if (commandsModuleHelpFileData?.id) await initCommandsModuleWithSubcommands(guildId, commandsModule, slashesData, commandsModuleHelpFileData);			
+		if (!commandsModuleHelpFileData?.id) await initCommandsModuleWithoutSubcommands(guildId, commandsModule, slashesData);			
 		
 	}
-	console.log(slashesData)
+	console.log(util.inspect(slashesData, {depth: 6, colors: true}))
 	
 	return slashesData;
 	

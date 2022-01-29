@@ -16,24 +16,16 @@ const commandHelp = {
 	name: commandName,
 	aliases: [ 'хелп' ],
 	description: [
-		`_Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё._`
+		`Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё.`
 	].join('\n'),
 	id: commandId,
 	isDisabled: commandIsDisabled,
+	defaultLevel: 0
 };
 
 const commandSlash = new SlashCommandBuilder()
  	.setName(commandName)
  	.setDescription('Список команд с описанием.');
-
-
-const pageSize = 2;
-
-async function commandExecution(interaction) {
-      const category = 0;
-	const page = 1;
-	await interaction.reply( await prepareHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]) );
-};
 
 module.exports = {
       name: commandName,
@@ -43,6 +35,15 @@ module.exports = {
       slash: commandSlash,
       execute: commandExecution
 };
+
+
+const pageSize = 2;
+
+async function commandExecution(interaction) {
+      const category = 0;
+	const page = 1;
+	await interaction.reply( await prepareHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]) );
+}
 
 
 module.exports.buttons = [
@@ -60,7 +61,7 @@ module.exports.buttons = [
 	async execute(interaction) {
 		const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
 		console.log(embedParams)
-		const category = embedParams.category;
+		const category = embedParams.categoryId;
 		let page = embedParams.page - 1;
 		
 		if (page <= 1) await interaction.update( await prepareHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]) );
@@ -72,7 +73,7 @@ module.exports.buttons = [
 	async execute(interaction) {
 		const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
 		console.log(embedParams)
-		const category = embedParams.category;
+		const category = embedParams.categoryId;
 		let page = embedParams.page - 5;
 		
 		if (page <= 1) await interaction.update( await prepareHelp(interaction, category, 1, pageSize, [1,1,0,0,0,0]) );
@@ -84,7 +85,7 @@ module.exports.buttons = [
 	async execute(interaction) {
 		const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
 		console.log(embedParams)
-		const category = embedParams.category;
+		const category = embedParams.categoryId;
 		let page = embedParams.page + 1;
 		const lastPage = embedParams.lastPage;
 		
@@ -97,7 +98,7 @@ module.exports.buttons = [
 	async execute(interaction) {
 		const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
 		console.log(embedParams)
-		const category = embedParams.category;
+		const category = embedParams.categoryId;
 		let page = embedParams.page + 5;
 		const lastPage = embedParams.lastPage;
 		
@@ -110,7 +111,7 @@ module.exports.buttons = [
 	async execute(interaction) {
 		const embedParams = JSON.parse(interaction.message.embeds[0].thumbnail.url.split('??')[1]);
 		console.log(embedParams)
-		const category = embedParams.category;
+		const category = embedParams.categoryId;
 		const lastPage = embedParams.lastPage;
 		
 		await interaction.reply({ content: "Отправьте в чат номер страницы!", ephemeral: true });
@@ -134,13 +135,13 @@ module.exports.buttons = [
 
 
 
-async function prepareHelp(interaction, category, page, pageSize, buttonsState) {
+async function prepareHelp(interaction, categoryId, page, pageSize, buttonsState) {
 	
 	const helpData = await buildHelp();
-	const commands = helpData.commands[category];
-	const categories = helpData.categories[category];
+	const commandsHelp = helpData.commands[categoryId];
+	const categoryHelp = helpData.categories[categoryId];
 	
-	let lastPage = Math.ceil(commands.length / pageSize);
+	let lastPage = Math.ceil(commandsHelp.length / pageSize);
 	if (page > lastPage) page = lastPage;
 	if (page < 1) page = 1;
   
@@ -148,25 +149,30 @@ async function prepareHelp(interaction, category, page, pageSize, buttonsState) 
 	if (page <= 1) startPage = 0;
 	else startPage = page - 1;
   
-	let helpDesc = `**${categories.description}**\n`;
+	let helpDesc = `**${categoryHelp.description}**\n`;
 	for (let i = pageSize * startPage; i < (pageSize * (page - 1) + pageSize); i++) {
 		
-		if (i >= commands.length) continue;
-		const categoryName = (commands[i]?.subcommandCategory) ? `${commands[i].subcommandCategory} ` : '';                  
+		if (i >= commandsHelp.length) continue;
+		const categoryName = (commandsHelp[i]?.subcommandCategory) ? (commandsHelp[i].subcommandCategory + ' ') : '';                  
 		helpDesc = [
 		 	helpDesc,
-		 	`${icons.slash1} /${categoryName}**${commands[i].name}**`,
-		 	`${commands[i].description}\n`
+		 	`${icons.slash1} /${categoryName}**${commandsHelp[i].name}**`,
+		 	`_${commandsHelp[i].description}_`
 		].join('\n');
+            if (commandsHelp[i]?.options) {
+                  let commandOptions = `${icons.options1} **Доступные опции команды:**`;
+                  commandsHelp[i].options.forEach(option => commandOptions = `${commandOptions}\n・**\`${option.name}\`** _(${option.description})_`);               
+                  helpDesc = `${helpDesc}\n${commandOptions}\n`;
+            } else helpDesc = helpDesc + '\n';
 		
 	}
   
 	const helpEmbed = new MessageEmbed()
  		.setColor('#ff99ff')
- 		.setTitle(`**${categories.name}** `)
- 		.setDescription(helpDesc + '_ _')
+ 		.setTitle(`**${categoryHelp.name}** `)
+ 		.setDescription(helpDesc + '\u200b')
  		.setFooter({ text: `📖 Страница: ${page}/${lastPage}` })
- 		.setThumbnail(`${invisibleImage}??{"category":"${category}","page":"${page}","lastPage":"${lastPage}"}`);
+ 		.setThumbnail(`${invisibleImage}??{"categoryId":"${categoryId}","page":"${page}","lastPage":"${lastPage}"}`);
   
   
 	const row = new MessageActionRow()
@@ -218,7 +224,8 @@ async function prepareHelp(interaction, category, page, pageSize, buttonsState) 
 		.addOptions(categoryOptions)
 		.setDisabled(buttonsState[5])
 	);
-  
+      
+      
 	return {
 		embeds: [helpEmbed],
 		components: [row, row2]
