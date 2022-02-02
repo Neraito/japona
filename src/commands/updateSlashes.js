@@ -52,6 +52,7 @@ async function initCommandsModuleWithoutSubcommands(guildId, commandsModule, sla
 	for (let command of commands) {
 		if (!devCommandOnDevServer(command, guildId)) continue;
 		command = require(`${__dirname}/${commandsModule}/${command}`);
+		if (await command.help.isDisabled(guildId)) continue;
 		slashesData.push(command.slash.toJSON());
 	}
 	
@@ -61,18 +62,19 @@ async function initCommandsModuleWithoutSubcommands(guildId, commandsModule, sla
 async function initCommandsModuleWithSubcommands(guildId, commandsModule, slashesData, commandsModuleHelpData) {
 	
 	const slashCommand = new SlashCommandBuilder()
-	 				.setName(commandsModuleHelpData.id)
-	 				.setDescription('.');
+       	.setName(commandsModuleHelpData.id)
+       	.setDescription('.');
 	
 	const commands = fs.readdirSync(`${__dirname}/${commandsModule}/`).filter(f => f.endsWith('.js'));
 	
 	for (let command of commands) {
 		if (!devCommandOnDevServer(command, guildId)) continue;
 		command = require(`${__dirname}/${commandsModule}/${command}`);
+		if (await command.help.isDisabled(guildId)) continue;
 		command.slash(slashCommand);
 	}
 	
-	slashesData.push(slashCommand.toJSON());
+	if (slashCommand.options.length > 0) slashesData.push(slashCommand.toJSON());
 	
 }
 

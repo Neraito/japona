@@ -3,6 +3,7 @@ const { MessageActionRow, MessageButton, MessageSelectMenu, MessageEmbed } = req
 const fs = require('fs');
 
 const { icons, invisibleImage } = require(`${__main}/utils/constants.js`);
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
 
 
 const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
@@ -40,6 +41,8 @@ module.exports = {
 const pageSize = 2;
 
 async function commandExecution(interaction) {
+      if (await commandIsDisabled(interaction.guildId)) return;
+      
       const category = 0;
 	const page = 1;
 	await interaction.reply( await prepareHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]) );

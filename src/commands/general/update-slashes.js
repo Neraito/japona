@@ -3,6 +3,7 @@ const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
 const icons = require(`${__main}/utils/constants.js`).icons;
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
 
 
 const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
@@ -33,6 +34,7 @@ const commandSlash = new SlashCommandBuilder()
 
 
 async function commandExecution(interaction) {
+      if (await commandIsDisabled(interaction.guildId)) return;
 	if (interaction.user.id != '612409053955620898') return interaction.reply({ content: 'Только создатель бота может использовать эту команду!', ephemeral: true });			
 	
 	const server = interaction.options.getString('server');

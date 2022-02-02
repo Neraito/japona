@@ -2,6 +2,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
+
 
 const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
 const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
@@ -27,6 +29,7 @@ const commandSlash = new SlashCommandBuilder()
 
 
 async function commandExecution(interaction) {
+      if (await commandIsDisabled(interaction.guildId)) return;
       //console.log(interaction)
 	const row = new MessageActionRow()
 	.addComponents(

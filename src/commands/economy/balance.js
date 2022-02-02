@@ -58,6 +58,8 @@ async function checkPermissions(interaction, params) {
 
 
 async function commandExecution(interaction) {
+      if (await commandIsDisabled(interaction.guildId)) return;
+      
 	const add = interaction.options.getString('add');
 	const remove = interaction.options.getString('remove');
 	
