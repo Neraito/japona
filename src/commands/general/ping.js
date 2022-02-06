@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
-const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
+const { Guilds } = require(`${__main}/mongo/mongo.js`).schemas;
 
 
 const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
@@ -24,8 +24,17 @@ const commandHelp = {
 };
 
 const commandSlash = new SlashCommandBuilder()
-	 		  .setName(commandName)
-	 		  .setDescription('Отвечает словом Pong!');
+      .setName(commandName)
+      .setDescription('Отвечает словом Pong!');
+
+module.exports = {
+      name: commandName,
+      id: commandId,
+      isDisabled: commandIsDisabled,
+      help: commandHelp,
+      slash: commandSlash,
+      execute: commandExecution
+};
 
 
 async function commandExecution(interaction) {
@@ -87,14 +96,6 @@ async function commandExecution(interaction) {
   await interaction.reply({ content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2] });			
 };
 
-module.exports = {
-      name: commandName,
-      id: commandId,
-      isDisabled: commandIsDisabled,
-      help: commandHelp,
-      slash: commandSlash,
-      execute: commandExecution
-};
 
 
 module.exports.buttons = [

@@ -3,7 +3,7 @@ const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.
 const permissionsController = require(`${__main}/controllers/permissionsController.js`);
 
 const icons = require(`${__main}/utils/constants.js`).icons;
-const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
+const { Guilds } = require(`${__main}/mongo/mongo.js`).schemas;
 
 
 const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
@@ -21,7 +21,7 @@ const commandHelp = {
 	].join('\n'),
 	id: commandId,
 	isDisabled: commandIsDisabled,
-	defaultLevel: 0,
+	defaultLevel: 25,
       options: [
             { name: 'server', description: 'Можно указать айди другого сервера.'}
       ]
@@ -31,6 +31,15 @@ const commandSlash = new SlashCommandBuilder()
  	.setName(commandName)
  	.setDescription('Обновляет слэш команды на сервере')
  	.addStringOption(option => option.setName('server').setDescription('Укажите id сервера который хотите обновить!'));
+
+module.exports = {
+      name: commandName,
+      id: commandId,
+      isDisabled: commandIsDisabled,
+      help: commandHelp,
+      slash: commandSlash,
+      execute: commandExecution
+};
 
 
 async function commandExecution(interaction) {
@@ -61,14 +70,4 @@ async function commandExecution(interaction) {
 		}
 	}
 }
-
-module.exports = {
-      name: commandName,
-      id: commandId,
-      isDisabled: commandIsDisabled,
-      help: commandHelp,
-      slash: commandSlash,
-      execute: commandExecution
-};
-
 //module.exports.buttons = [];

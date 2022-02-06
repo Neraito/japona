@@ -1,12 +1,10 @@
 module.exports = {
-  
 	name: 'interactionCreate',
 	async execute(interaction) {
 		if (interaction.isCommand()) runCommand(interaction);
 		else if (interaction.isButton() || interaction.isSelectMenu()) runButton(interaction);		
 		else return;
 	},
-  
 };
 
 

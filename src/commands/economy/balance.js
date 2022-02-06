@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
 
 const icons = require(`${__main}/utils/constants.js`).icons;
-const { Guilds, Profile } = require(`${__main}/mongo/index.js`).schemas;
+const { Guilds, Profile } = require(`${__main}/mongo/mongo.js`).schemas;
 const numbers = new Intl.NumberFormat();
 
 

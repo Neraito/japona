@@ -3,7 +3,7 @@ const { MessageActionRow, MessageButton, MessageSelectMenu, MessageEmbed } = req
 const fs = require('fs');
 
 const { icons, invisibleImage } = require(`${__main}/utils/constants.js`);
-const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
+const { Guilds } = require(`${__main}/mongo/mongo.js`).schemas;
 
 
 const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
@@ -157,16 +157,19 @@ async function prepareHelp(interaction, categoryId, page, pageSize, buttonsState
 		
 		if (i >= commandsHelp.length) continue;
 		const categoryName = (commandsHelp[i]?.subcommandCategory) ? (commandsHelp[i].subcommandCategory + ' ') : '';                  
+		
 		helpDesc = [
-		 	helpDesc,
-		 	`${icons.slash1} /${categoryName}**${commandsHelp[i].name}**`,
-		 	`_${commandsHelp[i].description}_`
+                  helpDesc,
+                  `${icons.slash1} /${categoryName}**${commandsHelp[i].name}**`,
+                  `_${commandsHelp[i].description}_`
 		].join('\n');
+		
             if (commandsHelp[i]?.options) {
                   let commandOptions = `${icons.options1} **Доступные опции команды:**`;
                   commandsHelp[i].options.forEach(option => commandOptions = `${commandOptions}\n・**\`${option.name}\`** _(${option.description})_`);               
                   helpDesc = `${helpDesc}\n${commandOptions}\n`;
-            } else helpDesc = helpDesc + '\n';
+            }
+            else helpDesc = helpDesc + '\n';
 		
 	}
   

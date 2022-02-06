@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const config = require(`${__main}/config/config.json`);
-const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
+const { Guilds } = require(`${__main}/mongo/mongo.js`).schemas;
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const util = require('util')

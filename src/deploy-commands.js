@@ -13,7 +13,7 @@ bot.commands = new Collection();
 bot.buttons = new Collection();
 
 
-require(`${__main}/mongo/index.js`)().then(slashCommandsDeploy());
+require(`${__main}/mongo/mongo.js`)().then(slashCommandsDeploy());
 
 
 async function slashCommandsDeploy() {

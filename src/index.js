@@ -10,9 +10,9 @@ global.__main = __dirname;
 	bot.commands = new Collection();
 	bot.buttons = new Collection();
   
-	await require(`${__main}/mongo/index.js`)();
-	require(`${__main}/commands/index.js`)();
-	require(`${__main}/handlers/index.js`)();
+	await require(`${__main}/mongo/mongo.js`)();
+	require(`${__main}/commands/commands.js`)();
+	require(`${__main}/handlers/handlers.js`)();
   
 	//require(`${__main}/commands/updateSlashes.js`)(config.guildId)
   
