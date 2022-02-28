@@ -21,7 +21,7 @@ async function initCommandsModuleWithoutSubcommands(commandsModule) {
   
 	for (let command of commands) {
 		command = require(`${__dirname}/${commandsModule}/${command}`);
-		bot.commands.set(command.name, command.execute);
+		bot.commands.set(command.config.name, command.run);
 		
 		if (!command.buttons) continue;
 		for (let button of command.buttons) {
@@ -39,7 +39,7 @@ async function initCommandsModuleWithSubcommands(commandsModule) {
   
 	for (let command of commands) {
 		command = require(`${__dirname}/${commandsModule}/${command}`);
-		commandsData.push({ name: command.name, execute: command.execute });
+		commandsData.push({ name: command.config.name, execute: command.run });
 		
 		if (!command.buttons) continue;
 		for (let button of command.buttons) {
@@ -47,10 +47,10 @@ async function initCommandsModuleWithSubcommands(commandsModule) {
 		}
 	}
 	
-	async function execute(interaction) {
-		const subcommand = interaction.options.getSubcommand();
+	async function execute(data) {
+		const subcommand = data.interaction.options.getSubcommand();
 		for (let command of commandsData) {
-			if (subcommand === command.name) command.execute(interaction);
+			if (subcommand === command.name) command.execute(data);
 		}
 	}
   

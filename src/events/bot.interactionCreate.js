@@ -10,11 +10,18 @@ module.exports = {
 
 async function runCommand(interaction) {
 	
-	const command = bot.commands.get(interaction.commandName);
+	const command = bot.commands2.get(interaction.commandName);
 	if (!command) return;
+
+	const data = {
+		guild: interaction.guild,
+		author: interaction.member,
+		interaction: interaction,
+		message: null
+	}
   
 	try {
-		await command(interaction);
+		await command(data);
 	}
 	catch (error) {
 		console.error(error);
@@ -26,7 +33,7 @@ async function runCommand(interaction) {
 
 async function runButton(interaction) {
 	
-	const button = bot.buttons.get(interaction.customId);
+	const button = bot.buttons2.get(interaction.customId);
 	if (!button) return;
   
 	try {

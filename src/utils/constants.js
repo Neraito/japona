@@ -9,5 +9,9 @@ module.exports = {
 		right2: '<:page_right2:928276869235761252>',
 	},
 	invisibleImage: 'https://media.discordapp.net/attachments/669135667678150657/803906867323338812/Invisible_Bot_Avatar.png',		
-	
+	help: {
+		commandCategories: new Set()
+			.add('general', { name: '—  О С Н О В Н О Е  —', description: 'Здесь представлены базовые команды.' })
+			.add('economy', { name: '—  Э К О Н О М И К А  —', description: 'Черная бухгалтерия ФаньСи.' }),
+	}
 };

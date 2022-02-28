@@ -1,51 +1,58 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
-const permissionsController = require(`${__main}/controllers/permissionsController.js`);
+const path = require('path');
 
-const icons = require(`${__main}/utils/constants.js`).icons;
-const { Guilds } = require(`${__main}/mongo/mongo.js`).schemas;
+const { isCommandDisabled, checkCommandPermissions } = require(`${__main}/utils/utils.js`);
+const { commandPermissionsError, commandOptionsError } = require(`${__main}/utils/errors.js`);
 
-
-const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
-
-const commandIsDisabled = async function (guildId) {
-	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
+const config = {
+	name: __filename.split(path.sep).slice(-1).join('-').slice(0, -3),
+	id: __filename.split(path.sep).slice(-2).join('-').slice(0, -3),
+	aliases: [],
+	category: __filename.split(path.sep).slice(-2, -1),
+	subcommand: false,
+	disabled: false,
+	features: [
+		{ name: 'main', defaultLevel: 25 },
+	],
 };
 
-const commandHelp = {
-	name: commandName,
-	aliases: [ 'обновить-слэши' ],
-	description: [
-		`Позволяет разработчику обновить слэш команды на сервере.`,
-	].join('\n'),
-	id: commandId,
-	isDisabled: commandIsDisabled,
-	defaultLevel: 25,
-      options: [
-            { name: 'server', description: 'Можно указать айди другого сервера.'}
+const help = {
+	description: `Позволяет разработчику обновить слэш команды на сервере.`,
+	options: [],
+};
+
+const slashConfig = {
+	name: config.name,
+	description: 'Обновляет слэш команды на сервере.',
+	options: [
+            { name: 'server', description: 'Можно указать айди другого сервера.' }
       ]
 };
 
-const commandSlash = new SlashCommandBuilder()
- 	.setName(commandName)
- 	.setDescription('Обновляет слэш команды на сервере')
- 	.addStringOption(option => option.setName('server').setDescription('Укажите id сервера который хотите обновить!'));
+async function run(data) {
+	if (config.disabled) return;
+	if (await isCommandDisabled(data.guild.id, config.id)) return;
+
+	if (!await checkCommandPermissions(data, config.features[0].defaultLevel, `${config.id}-${config.features[0].name}`)) return commandPermissionsError(data);
+	if (data.interaction.user.id != '612409053955620898') return data.interaction.reply({ content: 'Только создатель бота может использовать эту команду!', ephemeral: true });	
+	main(data.interaction)
+}
+
 
 module.exports = {
-      name: commandName,
-      id: commandId,
-      isDisabled: commandIsDisabled,
-      help: commandHelp,
-      slash: commandSlash,
-      execute: commandExecution
+	config: config,
+	help: help,
+	slashConfig: slashConfig,
+	run: run
 };
 
 
-async function commandExecution(interaction) {
-      if (await commandIsDisabled(interaction.guildId)) return;
-	if (interaction.user.id != '612409053955620898') return interaction.reply({ content: 'Только создатель бота может использовать эту команду!', ephemeral: true });			
-	
+const icons = require(`${__main}/utils/constants.js`).icons;
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
+
+
+async function main(interaction) {
 	const server = interaction.options.getString('server');
 	
 	if (!server) {

@@ -1,51 +1,62 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu, MessageEmbed } = require('discord.js');
+const path = require('path');
+
+const { isCommandDisabled, checkCommandPermissions } = require(`${__main}/utils/utils.js`);
+const { commandPermissionsError, commandOptionsError } = require(`${__main}/utils/errors.js`);
+
+const config = {
+	name: __filename.split(path.sep).slice(-1).join('-').slice(0, -3),
+	id: __filename.split(path.sep).slice(-2).join('-').slice(0, -3),
+	aliases: [],
+	category: __filename.split(path.sep).slice(-2, -1),
+	subcommand: false,
+	disabled: false,
+	features: [
+		{ name: 'main', defaultLevel: 0 },
+	],
+};
+
+const help = {
+	description: `Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё.`,
+	options: [],
+};
+
+const slashConfig = {
+	name: config.name,
+	description: 'Список команд с описанием.',
+	options: [],
+};
+
+async function run(data) {
+	if (config.disabled) return;
+	if (await isCommandDisabled(data.guild.id, config.id)) return;
+
+	if (!await checkCommandPermissions(data, config.features[0].defaultLevel, `${config.id}-${config.features[0].name}`)) return commandPermissionsError(data);
+	main(data)
+}
+
+
+module.exports = {
+	config: config,
+	help: help,
+	slashConfig: slashConfig,
+	run: run
+};
+
+
 const fs = require('fs');
 
 const { icons, invisibleImage } = require(`${__main}/utils/constants.js`);
-const { Guilds } = require(`${__main}/mongo/mongo.js`).schemas;
-
-
-const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
-
-const commandIsDisabled = async function (guildId) {
-	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
-};
-
-const commandHelp = {
-	name: commandName,
-	aliases: [ 'хелп' ],
-	description: [
-		`Вызывает прямо эту панельку с подсказками, да и что я тебе вообще рассказываю, ты уже вызвал(а) её и прямо сейчас смотришь на неё.`
-	].join('\n'),
-	id: commandId,
-	isDisabled: commandIsDisabled,
-	defaultLevel: 0
-};
-
-const commandSlash = new SlashCommandBuilder()
- 	.setName(commandName)
- 	.setDescription('Список команд с описанием.');
-
-module.exports = {
-      name: commandName,
-      id: commandId,
-      isDisabled: commandIsDisabled,
-      help: commandHelp,
-      slash: commandSlash,
-      execute: commandExecution
-};
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
 
 
 const pageSize = 2;
 
-async function commandExecution(interaction) {
-      if (await commandIsDisabled(interaction.guildId)) return;
-      
+async function main(data) {
       const category = 0;
 	const page = 1;
-	await interaction.reply( await prepareHelp(interaction, category, page, pageSize, [1,1,0,0,0,0]) );
+	await data.interaction.reply( await prepareHelp(data.interaction, category, page, pageSize, [1,1,0,0,0,0]) );
 }
 
 
@@ -156,6 +167,7 @@ async function prepareHelp(interaction, categoryId, page, pageSize, buttonsState
 	for (let i = pageSize * startPage; i < (pageSize * (page - 1) + pageSize); i++) {
 		
 		if (i >= commandsHelp.length) continue;
+		
 		const categoryName = (commandsHelp[i]?.subcommandCategory) ? (commandsHelp[i].subcommandCategory + ' ') : '';                  
 		
 		helpDesc = [
@@ -174,20 +186,20 @@ async function prepareHelp(interaction, categoryId, page, pageSize, buttonsState
 	}
   
 	const helpEmbed = new MessageEmbed()
- 		.setColor('#ff99ff')
- 		.setTitle(`**${categoryHelp.name}** `)
- 		.setDescription(helpDesc + '\u200b')
- 		.setFooter({ text: `📖 Страница: ${page}/${lastPage}` })
- 		.setThumbnail(`${invisibleImage}??{"categoryId":"${categoryId}","page":"${page}","lastPage":"${lastPage}"}`);
+		.setColor('#ff99ff')
+		.setTitle(`**${categoryHelp.name}** `)
+		.setDescription(helpDesc + '\u200b')
+		.setFooter({ text: `📖 Страница: ${page}/${lastPage}` })
+		.setThumbnail(`${invisibleImage}??{"categoryId":"${categoryId}","page":"${page}","lastPage":"${lastPage}"}`);
   
   
 	const row = new MessageActionRow()
 	.addComponents(
 	new MessageButton()
-		 .setCustomId('helpLeft1')
-		 .setEmoji(icons.left1)
-		 .setStyle(2)
-		 .setDisabled(buttonsState[0]),
+		.setCustomId('helpLeft1')
+		.setEmoji(icons.left1)
+		.setStyle(2)
+		.setDisabled(buttonsState[0]),
 	new MessageButton()
 		.setCustomId('helpLeft2')
 		.setEmoji(icons.left2)
@@ -213,13 +225,11 @@ async function prepareHelp(interaction, categoryId, page, pageSize, buttonsState
   
 	const categoryOptions = [];
 	for (let i = 0; i < helpData.categories.length; i++) {
-		
 		categoryOptions.push({
 			label: helpData.categories[i].name,
 			description: helpData.categories[i].description,
 			value: `hc${i}`
 		});
-		
 	}
   
 	const row2 = new MessageActionRow()

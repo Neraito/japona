@@ -1,44 +1,54 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
-const permissionsController = require(`${__main}/controllers/permissionsController.js`);
+const path = require('path');
 
-const { Guilds } = require(`${__main}/mongo/mongo.js`).schemas;
+const { isCommandDisabled, checkCommandPermissions } = require(`${__main}/utils/utils.js`);
+const { commandPermissionsError, commandOptionsError } = require(`${__main}/utils/errors.js`);
 
-
-const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
-
-const commandIsDisabled = async function (guildId) {
-	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
+const config = {
+	name: __filename.split(path.sep).slice(-1).join('-').slice(0, -3),
+	id: __filename.split(path.sep).slice(-2).join('-').slice(0, -3),
+	aliases: [],
+	category: __filename.split(path.sep).slice(-2, -1),
+	subcommand: false,
+	disabled: false,
+	features: [
+		{ name: 'main', defaultLevel: 0 },
+	],
 };
 
-const commandHelp = {
-	name: commandName,
-	aliases: [ 'пинг' ],
-	description: [
-		`Пингующая тыкалка с кнопками.`
-	].join('\n'),
-	id: commandId,
-	isDisabled: commandIsDisabled,
-	defaultLevel: 0
+const help = {
+	description: `Пингующая тыкалка с кнопками.`,
+	options: [],
 };
 
-const commandSlash = new SlashCommandBuilder()
-      .setName(commandName)
-      .setDescription('Отвечает словом Pong!');
+const slashConfig = {
+	name: config.name,
+	description: 'Отвечает словом Pong!',
+	options: [],
+};
+
+async function run(data) {
+	if (config.disabled) return;
+	if (await isCommandDisabled(data.guild.id, config.id)) return;
+
+	if (!await checkCommandPermissions(data, config.features[0].defaultLevel, `${config.id}-${config.features[0].name}`)) return commandPermissionsError(data);
+	main(data.interaction)
+}
+
 
 module.exports = {
-      name: commandName,
-      id: commandId,
-      isDisabled: commandIsDisabled,
-      help: commandHelp,
-      slash: commandSlash,
-      execute: commandExecution
+	config: config,
+	help: help,
+	slashConfig: slashConfig,
+	run: run
 };
 
 
-async function commandExecution(interaction) {
-      if (await commandIsDisabled(interaction.guildId)) return;
+const { Guilds } = require(`${__main}/mongo/index.js`).schemas;
+
+
+async function main(interaction) {
       //console.log(interaction)
 	const row = new MessageActionRow()
 	.addComponents(
@@ -90,11 +100,11 @@ async function commandExecution(interaction) {
 		])
 	);
   
-	  //console.log(interaction)
-	  //console.log(await permissionsController.check(6, interaction));
+	//console.log(interaction)
+	//console.log(await permissionsController.check(6, interaction));
   
   await interaction.reply({ content: 'Pong! ' + bot.ws.ping + "ms", components: [row, row2] });			
-};
+}
 
 
 

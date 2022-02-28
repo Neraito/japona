@@ -1,114 +1,116 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
+const path = require('path');
 
-const icons = require(`${__main}/utils/constants.js`).icons;
-const { Guilds, Profile } = require(`${__main}/mongo/mongo.js`).schemas;
-const numbers = new Intl.NumberFormat();
+const { isCommandDisabled, checkCommandPermissions } = require(`${__main}/utils/utils.js`);
+const { commandPermissionsError, commandOptionsError } = require(`${__main}/utils/errors.js`);
 
-
-const commandName = __filename.split('/').slice(-1).join('/').slice(0, -3);
-const commandId = __filename.split('/').slice(-2).join('/').slice(0, -3);
-
-const commandIsDisabled = async function (guildId) {
-	return Boolean( await Guilds.findOne({ guildId: guildId, disabledCommands: {$in:[commandId]} }) );
-};
-
-const commandHelp = {
-	name: commandName,
-	subcommandCategory: commandId.split('/')[0],
-	aliases: [ 'баланс' ],
-	description: [
-	 	`Крч тута можна посмотретб сколька у тибя денях и тута еще можна добавить и убавить денях, вооот.`,
-	].join('\n'),
-	id: commandId,
-	isDisabled: commandIsDisabled,
-	defaultLevel: 0,
-	options: [
-	 	{ name: 'target', description: `Можно указать пользователя, без этой опции команда применяется на вызвавшего команду` },
-	 	{ name: 'add', defaultLevel: 6, description: `Используется для увеличения баланса пользователя, доступно только админам` },
-	 	{ name: 'remove', defaultLevel: 6, description: `Используется для уменьшения баланса пользователя, доступно только админам` },
+const config = {
+	name: __filename.split(path.sep).slice(-1).join('-').slice(0, -3),
+	id: __filename.split(path.sep).slice(-2).join('-').slice(0, -3),
+	aliases: [],
+	category: __filename.split(path.sep).slice(-2, -1),
+	subcommand: true,
+	disabled: false,
+	features: [
+		{ name: 'showBalance', defaultLevel: 0 },
+		{ name: 'addBalance', defaultLevel: 6 },
+		{ name: 'removeBalance', defaultLevel: 6 },
 	]
 };
 
-function commandSlash(slashCommand) {
-	slashCommand.addSubcommand(subcommand =>
-		subcommand
-            .setName(commandName)
-            .setDescription('Управление балансом пользователя.')
-            .addStringOption(option => option.setName('add').setDescription('Сколько добавить на баланс.\n🛡 Нужна роль с доступом!'))			
-            .addStringOption(option => option.setName('remove').setDescription('Сколько удалить с баланса.\n️🛡 Нужна роль с доступом!'))			
-            .addUserOption(option => option.setName('target').setDescription('На кого использовать команду.'))			
-	);
-}
+const help = {
+	description: `Крч тута можна посмотретб сколька у тибя денях и тута еще можна добавить и убавить денях, вооот.`,
+	options: [
+		{ name: 'target', description: `Можно указать пользователя, без этой опции команда применяется на вызвавшего команду` },
+		{ name: 'add', description: `Используется для увеличения баланса пользователя, доступно только админам` },
+		{ name: 'remove', description: `Используется для уменьшения баланса пользователя, доступно только админам` },
+	],
+};
 
-module.exports = {
-      name: commandName,
-      id: commandId,
-      isDisabled: commandIsDisabled,
-      help: commandHelp,
-      slash: commandSlash,
-      execute: commandExecution
+const slashConfig = {
+	name: config.name,
+	description: 'Управление балансом пользователя.',
+	options: [
+		{ name: 'add', type: 'string', description: 'Сколько добавить на баланс.\n🛡 Нужна роль с доступом!' },
+		{ name: 'remove', type: 'string', description: 'Сколько удалить с баланса.\n️🛡 Нужна роль с доступом!' },
+		{ name: 'target', type: 'user', description: 'На кого использовать команду.' },
+	]
 };
 
 
-async function checkPermissions(interaction, params) {
-	const checkPerms = require(`${__main}/controllers/permissionsController.js`).check;
-	return await checkPerms(commandHelp.options[params.optionIndex].defaultLevel, `${commandId}/${commandHelp.options[params.optionIndex].name}`, interaction);			
+async function run(data) {
+	if (config.disabled) return;
+	if (await isCommandDisabled(data.guild.id, config.id)) return;
+
+	const add = data.interaction.options.getString('add');
+	const remove = data.interaction.options.getString('remove');
+
+	if (!add && !remove) {
+		if (!await checkCommandPermissions(data, config.features[0].defaultLevel, `${config.id}-${config.features[0].name}`)) return commandPermissionsError(data);
+		showBalance(data);
+	}
+	if (add && !remove) {
+		if (!await checkCommandPermissions(data, config.features[1].defaultLevel, `${config.id}-${config.features[1].name}`)) return commandPermissionsError(data);
+		addBalance(data);
+	}
+	if (!add && remove) {
+		if (!await checkCommandPermissions(data, config.features[2].defaultLevel, `${config.id}-${config.features[2].name}`)) return commandPermissionsError(data);
+		removeBalance(data);
+	}
+	if (add && remove) return commandOptionsError(data);
 }
 
 
-async function commandExecution(interaction) {
-      if (await commandIsDisabled(interaction.guildId)) return;
-      
-	const add = interaction.options.getString('add');
-	const remove = interaction.options.getString('remove');
-	
-	if (!add && !remove) await showBalance(interaction);
-	if (add && !remove) await addBalance(interaction);
-	if (!add && remove) await removeBalance(interaction);
-	if (add && remove) interaction.reply({ content: 'Выбери что-то одно: добавить или убавить.', ephemeral: true });
-}
+module.exports = {
+	config: config,
+	help: help,
+	slashConfig: slashConfig,
+	run: run
+};
 
 
-const showBalance = async (interaction) => {
-	const user = interaction.options.getUser('target') || interaction.user;
+
+const icons = require(`${__main}/utils/constants.js`).icons;
+const { Guilds, Profile } = require(`${__main}/mongo/index.js`).schemas;
+const numbers = new Intl.NumberFormat();
+
+
+const showBalance = async (data) => {
+	const user = data.interaction.options.getUser('target') || data.interaction.user;
 	const profile = await Profile.findOne({userId: user.id}) || await Profile.create({userId: user.id});
   
-	await interaction.reply([
+	await data.interaction.reply([
 		`>>> <@${profile.userId}>`,
 		`Баланс: ${numbers.format(+profile.balance)}`
 	].join('\n'));
 };
 
-const addBalance = async (interaction) => {
-	if (!await checkPermissions(interaction, { optionIndex: 1 })) return;
-	
-	const user = interaction.options.getUser('target') || interaction.user;
-	let add = +interaction.options.getString('add');
+const addBalance = async (data) => {
+	const user = data.interaction.options.getUser('target') || data.interaction.user;
+	let add = +data.interaction.options.getString('add');
 	if (isNaN(add)) add = 0;
 	
 	const profile = await Profile.findOne({userId: user.id}) || await Profile.create({userId: user.id});
 	profile.balance = +profile.balance + add;
       profile.save();
   
-	await interaction.reply([
+	await data.interaction.reply([
             `>>> <@${profile.userId}>`,
             `Баланс: ${numbers.format(profile.balance)}`
 	].join('\n'));
 };
 
-const removeBalance = async (interaction) => {
-	if (!await checkPermissions(interaction, { optionIndex: 2 })) return;
-	
-	const user = interaction.options.getUser('target') || interaction.user;
-	let remove = +interaction.options.getString('remove');
+const removeBalance = async (data) => {
+	const user = data.interaction.options.getUser('target') || data.interaction.user;
+	let remove = +data.interaction.options.getString('remove');
 	if (isNaN(remove)) remove = 0;
 	
 	const profile = await Profile.findOne({userId: user.id}) || await Profile.create({userId: user.id});
 	profile.balance = (+profile.balance - remove > 0) ? +profile.balance - remove : 0;
       profile.save();
   
-	await interaction.reply([
+	await data.interaction.reply([
 		`>>> <@${profile.userId}>`,
 		`Баланс: ${numbers.format(profile.balance)}`
 	].join('\n'));
